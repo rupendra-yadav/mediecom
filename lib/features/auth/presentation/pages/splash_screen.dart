@@ -1,11 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/core/constants/media_constants.dart';
 import 'package:mediecom/core/extentions/context_extensions.dart';
-import 'package:mediecom/features/auth/presentation/pages/phone_number_login.dart';
-import 'package:mediecom/features/bottom_navigation/presentation/bottom_navigation_bar.dart';
+import 'package:mediecom/features/auth/presentation/auth_injection.dart';
+import 'package:mediecom/features/auth/presentation/pages/phone_number.dart';
 import 'package:mediecom/features/explore/presentation/pages/home_screen.dart';
 // import 'package:skillslinks/core/constants/media_constants.dart';
 // import 'package:skillslinks/core/extentions/context_extensions.dart';
@@ -39,9 +41,9 @@ class _SplashScreenState extends State<SplashScreen> {
     //   // Guard against calling context on a disposed widget
     if (!mounted) return;
 
-    //   final cacheHelper = sl<CacheHelper>();
-    // String destinationPath;
-    context.go(PhoneOtpLoginPage.path);
+    final cacheHelper = sl<CacheHelper>();
+    String destinationPath;
+    // context.go(PhoneNumberPage.path);
 
     //   // --- Flattened Logic with Early Returns for Clarity ---
 
@@ -52,12 +54,13 @@ class _SplashScreenState extends State<SplashScreen> {
     //     return;
     //   }
 
-    //   // 2. If not the first time, are they logged in?
-    //   if (!cacheHelper.isLoggedIn()) {
-    //     destinationPath = LoginScreen.path;
-    //     context.go(destinationPath);
-    //     return;
-    //   }
+    // 2. If not the first time, are they logged in?
+    log("${!cacheHelper.isLoggedIn()}");
+    if (cacheHelper.isLoggedIn()) {
+      destinationPath = PhoneNumberPage.path;
+      context.go(destinationPath);
+      return;
+    }
 
     //   // 3. If logged in, is their profile complete?
     //   // This is a safer way to check, handling both null user and empty name.
@@ -68,9 +71,9 @@ class _SplashScreenState extends State<SplashScreen> {
     //     return;
     //   }
 
-    //   // 4. If all checks pass, they are a returning, logged-in user with a profile.
-    //   destinationPath = FetchLocationScreen.path;
-    //   context.go(destinationPath);
+    // 4. If all checks pass, they are a returning, logged-in user with a profile.
+    destinationPath = HomeScreen.path;
+    context.go(destinationPath);
 
     //   // for vendor app
     //   if (cacheHelper.isVendor()) {

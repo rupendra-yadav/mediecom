@@ -270,7 +270,7 @@ class ProfilePage extends StatelessWidget {
         title: Text(
           title,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 12,
             fontWeight: FontWeight.w500,
             color: isLogout ? Colors.red.shade400 : _textColor,
           ),
@@ -282,7 +282,7 @@ class ProfilePage extends StatelessWidget {
               )
             : const Icon(
                 Icons.arrow_forward_ios,
-                size: 16,
+                size: 14,
                 color: _subtextColor,
               ),
         onTap: onTap,

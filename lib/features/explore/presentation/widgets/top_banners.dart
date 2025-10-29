@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:mediecom/core/constants/api_constants.dart';
+import 'package:mediecom/features/master/domain/entities/slider_entity.dart';
 
 class TopBannerCarousel extends StatefulWidget {
-  final List<String> imageUrls;
+  final List<SliderEntity> imageUrls;
 
   const TopBannerCarousel({super.key, required this.imageUrls});
 
@@ -35,7 +37,7 @@ class _TopBannerCarouselState extends State<TopBannerCarousel> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Image.network(
-                  url,
+                  "${ApiConstants.sliderBase}${url.m1Dc1}" ?? "",
                   fit: BoxFit.cover,
                   width: double.infinity,
                   loadingBuilder: (context, child, progress) {

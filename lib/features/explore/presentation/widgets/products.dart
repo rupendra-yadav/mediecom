@@ -5,13 +5,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:mediecom/core/extentions/color_extensions.dart';
+import 'package:mediecom/core/extentions/text_style_extentions.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
 import 'package:mediecom/features/explore/presentation/pages/product_details.dart';
 
 class Products extends StatelessWidget {
   const Products({super.key, required this.products});
-  final List<String> products;
+  final List<Map<String, dynamic>> products;
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +22,11 @@ class Products extends StatelessWidget {
       physics: NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 1,
+        childAspectRatio: 0.9,
         mainAxisSpacing: 4,
         crossAxisSpacing: 4,
       ),
-      itemCount: products.length,
+      itemCount: 8,
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
@@ -34,7 +35,7 @@ class Products extends StatelessWidget {
               MaterialPageRoute(
                 builder: (_) => ProductDetailPage(
                   tag: "product_$index",
-                  imgUrl: products[index],
+                  data: products[index],
                 ),
               ),
             );
@@ -46,7 +47,7 @@ class Products extends StatelessWidget {
   }
 }
 
-Widget buildProductCard(String imageUrl, int index) {
+Widget buildProductCard(Map<String, dynamic> data, int index) {
   return Stack(
     children: [
       Container(
@@ -65,7 +66,8 @@ Widget buildProductCard(String imageUrl, int index) {
                   tag: "product_$index",
                   child: CachedNetworkImage(
                     height: 100.h,
-                    imageUrl: imageUrl,
+                    width: double.infinity,
+                    imageUrl: data['image'],
                     fit: BoxFit.fill,
                   ),
                 ),
@@ -128,9 +130,24 @@ Widget buildProductCard(String imageUrl, int index) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Medicine Name", style: AppTextStyles.karala12w800),
+                  Text(
+                    data['drugName'] ?? "Medicine Name",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.karala12w800,
+                  ),
                   SizedBox(height: 4.h),
-                  Text("800/-", style: AppTextStyles.karala12w800),
+                  Text(
+                    data['manufacturer'] ?? "Medicine Name",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.karala12w300,
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    "Rs ${data['price'].toString()}/-" ?? "",
+                    style: AppTextStyles.karala14w800.green,
+                  ),
                   // Text("Medicine Name"),
                 ],
               ),
@@ -143,12 +160,12 @@ Widget buildProductCard(String imageUrl, int index) {
         right: 4,
         child: InkWell(
           onTap: () {},
-          borderRadius: BorderRadius.circular(12),
           child: Container(
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
               color: Colours.primaryColor,
-              shape: BoxShape.circle,
+              // shape: BoxShape.circle,
             ),
             child: const Icon(Iconsax.add, color: Colours.white, size: 18),
           ),

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mediecom/features/auth/presentation/pages/phone_number_login.dart';
+import 'package:mediecom/features/auth/presentation/pages/otp_verification_page.dart';
+import 'package:mediecom/features/auth/presentation/pages/phone_number.dart';
+import 'package:mediecom/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:mediecom/features/auth/presentation/pages/splash_screen.dart';
 import 'package:mediecom/features/bottom_navigation/presentation/bottom_navigation_bar.dart';
 import 'package:mediecom/features/cart/presentation/pages/cart.dart';
 import 'package:mediecom/features/explore/presentation/pages/home_screen.dart';
 import 'package:mediecom/features/explore/presentation/pages/product_details.dart';
+import 'package:mediecom/features/master/presentation/pages/subcategory_page.dart';
+import 'package:mediecom/features/notification/presentation/pages/push_notification.dart';
 import 'package:mediecom/features/orders/presentation/pages/orders.dart';
 import 'package:mediecom/features/user/presentation/pages/profile.dart';
 
@@ -41,9 +45,45 @@ final GoRouter router = GoRouter(
           buildTransitionPage(const SplashScreen(), slideInFromRight),
     ),
     GoRoute(
-      path: PhoneOtpLoginPage.path,
+      path: SignUpScreen.path,
       pageBuilder: (context, state) =>
-          buildTransitionPage(const PhoneOtpLoginPage(), slideInFromRight),
+          buildTransitionPage(const SignUpScreen(), slideInFromRight),
+    ),
+    GoRoute(
+      path: PhoneNumberPage.path,
+      pageBuilder: (context, state) =>
+          buildTransitionPage(const PhoneNumberPage(), slideInFromRight),
+    ),
+    GoRoute(
+      path: NotificationPage.path,
+      pageBuilder: (context, state) =>
+          buildTransitionPage(const NotificationPage(), slideInFromRight),
+    ),
+    GoRoute(
+      path: OtpVerificationPage.path,
+      pageBuilder: (context, state) {
+        final phone = state.extra as String;
+        return buildTransitionPage(
+          OtpVerificationPage(phoneNumber: phone),
+          slideInFromRight,
+        );
+      },
+    ),
+    GoRoute(
+      path: ProductDetailPage.path,
+      pageBuilder: (context, state) {
+        final phone = state.extra as String;
+        return buildTransitionPage(
+          ProductDetailPage(tag: '', data: {}),
+          slideInFromRight,
+        );
+      },
+    ),
+
+    GoRoute(
+      path: SubcategoryPage.path,
+      pageBuilder: (context, state) =>
+          buildTransitionPage(const SubcategoryPage(), slideInFromRight),
     ),
 
     /// Bottom Navigation Routes

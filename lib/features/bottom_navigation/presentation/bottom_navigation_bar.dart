@@ -26,9 +26,9 @@ class NavigationScreen extends StatelessWidget {
       appBar: GradientAppBar(
         name: _getTitle(context),
         address: "123 MG Road, Bengaluru",
-        onNotificationTap: () {
-          // Handle notification click
-        },
+        // onNotificationTap: () {
+        //   // Handle notification click
+        // },
         isUserName: _calculateSelectedIndex(context) == 0,
       ),
       // appBar: AppBar(

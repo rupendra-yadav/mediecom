@@ -19,13 +19,13 @@ class CacheHelper {
   //     await _prefs.remove(_isLoggedInKey);
   //   }
 
-  //   // Check if user is logged in
-  //   bool isLoggedIn() => _prefs.getBool(_isLoggedInKey) ?? false;
+  // Check if user is logged in
+  bool isLoggedIn() => _prefs.getBool(_isLoggedInKey) ?? false;
 
-  //   // Set the logged-in status
-  //   Future<void> setIsLoggedIn(bool value) async {
-  //     await _prefs.setBool(_isLoggedInKey, value);
-  //   }
+  // Set the logged-in status
+  Future<void> setIsLoggedIn(bool value) async {
+    await _prefs.setBool(_isLoggedInKey, value);
+  }
 
   //   // Check if user is a first-time user
   //   bool isFirstTime() => _prefs.getBool(_firstTimerKey) ?? true;

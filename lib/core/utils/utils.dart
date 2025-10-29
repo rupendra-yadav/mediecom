@@ -1,3 +1,4 @@
+import 'package:mediecom/core/common/error/app_failures.dart';
 // import 'dart:developer';
 
 // import 'package:url_launcher/url_launcher.dart';
@@ -58,3 +59,14 @@
 
 //   return sum / doubleList.length;
 // }
+
+String mapFailureToMessage(Failure failure) {
+  switch (failure) {
+    case ServerFailure():
+      return 'Server Error: ${failure.message}';
+    case NetworkFailure():
+      return 'Network Error: ${failure.message}';
+    default:
+      return 'Unexpected Error';
+  }
+}

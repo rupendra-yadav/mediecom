@@ -15,17 +15,21 @@ class Orders extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildOrderId(),
+            _buildOrderId(),
+            _buildOrderId(),
+            _buildOrderId(),
+            _buildOrderId(),
             // Track Order Section
-            Text(
-              'Track Order',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Colors.grey[800],
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildTrackingTimeline(),
+            // Text(
+            //   'Track Order',
+            //   style: TextStyle(
+            //     fontWeight: FontWeight.bold,
+            //     fontSize: 20,
+            //     color: Colors.grey[800],
+            //   ),
+            // ),
+            // const SizedBox(height: 16),
+            // _buildTrackingTimeline(),
           ],
         ),
       ),
@@ -167,7 +171,7 @@ class Orders extends StatelessWidget {
   Widget _buildOrderId() {
     return // Order Summary Card
     Container(
-      margin: const EdgeInsets.only(bottom: 24.0),
+      margin: const EdgeInsets.only(bottom: 12.0),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black38.o10),
         borderRadius: BorderRadius.circular(12),
