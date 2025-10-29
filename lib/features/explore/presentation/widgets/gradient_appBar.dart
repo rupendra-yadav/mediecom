@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:mediecom/core/extentions/text_style_extentions.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
 import 'package:mediecom/features/notification/presentation/pages/push_notification.dart';
@@ -11,6 +12,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   // final VoidCallback? onNotificationTap;
   final bool isUserName;
   final ValueChanged<String>? onSearchChanged;
+  final bool leading;
 
   const GradientAppBar({
     super.key,
@@ -19,6 +21,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
     // this.onNotificationTap,
     required this.isUserName,
     this.onSearchChanged,
+    this.leading = false,
   });
 
   @override
@@ -46,6 +49,16 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                leading
+                    ? IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      )
+                    : SizedBox.shrink(),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,14 +91,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                       ],
                       if (!isUserName) ...[
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        Text(name, style: AppTextStyles.karala16w800.white),
                       ],
                     ],
                   ),
@@ -101,13 +107,13 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Iconsax.notification, size: 22),
+                    child: const Icon(Iconsax.notification, size: 18),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
             if (isUserName) ...[
+              const SizedBox(height: 12),
               // Search Bar
               TextField(
                 onChanged: onSearchChanged,

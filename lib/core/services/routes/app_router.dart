@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mediecom/features/auth/presentation/pages/onboarding_page.dart';
 import 'package:mediecom/features/auth/presentation/pages/otp_verification_page.dart';
 import 'package:mediecom/features/auth/presentation/pages/phone_number.dart';
 import 'package:mediecom/features/auth/presentation/pages/sign_up_page.dart';
@@ -43,6 +44,11 @@ final GoRouter router = GoRouter(
       path: '/',
       pageBuilder: (context, state) =>
           buildTransitionPage(const SplashScreen(), slideInFromRight),
+    ),
+    GoRoute(
+      path: OnboardingPage.path,
+      pageBuilder: (context, state) =>
+          buildTransitionPage(const OnboardingPage(), slideInFromRight),
     ),
     GoRoute(
       path: SignUpScreen.path,

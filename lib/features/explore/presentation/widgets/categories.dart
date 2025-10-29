@@ -78,6 +78,7 @@ class CategoryList extends StatelessWidget {
     return Column(
       children: [
         Container(
+          height: 130.h,
           color: Colours.white, // soft yellow background
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           child: SingleChildScrollView(
@@ -91,8 +92,11 @@ class CategoryList extends StatelessWidget {
                   },
                   child: Container(
                     width: 80.w,
-                    height: 83.h,
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
+
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 10,
@@ -138,18 +142,6 @@ class CategoryList extends StatelessWidget {
               }).toList(),
             ),
           ),
-        ),
-        Container(
-          height: 50,
-          width: double.infinity,
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.yellow.shade50,
-            border: Border.all(color: Colors.yellow, width: 1.2),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Center(child: Text("View All")),
         ),
       ],
     );

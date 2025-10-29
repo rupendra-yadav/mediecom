@@ -7,6 +7,7 @@ import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/core/constants/media_constants.dart';
 import 'package:mediecom/core/extentions/context_extensions.dart';
 import 'package:mediecom/features/auth/presentation/auth_injection.dart';
+import 'package:mediecom/features/auth/presentation/pages/onboarding_page.dart';
 import 'package:mediecom/features/auth/presentation/pages/phone_number.dart';
 import 'package:mediecom/features/explore/presentation/pages/home_screen.dart';
 // import 'package:skillslinks/core/constants/media_constants.dart';
@@ -72,7 +73,8 @@ class _SplashScreenState extends State<SplashScreen> {
     //   }
 
     // 4. If all checks pass, they are a returning, logged-in user with a profile.
-    destinationPath = HomeScreen.path;
+    // destinationPath = HomeScreen.path;
+    destinationPath = OnboardingPage.path;
     context.go(destinationPath);
 
     //   // for vendor app

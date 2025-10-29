@@ -26,36 +26,9 @@ class ProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User Avatar and Name
-            Align(
-              alignment: Alignment.centerLeft,
-              child: CircleAvatar(
-                radius: 40,
-                backgroundColor: _accentColor.withOpacity(
-                  0.1,
-                ), // Light accent background for avatar
-                child: Icon(
-                  Icons.person,
-                  size: 40,
-                  color: _accentColor, // Accent color for the icon
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Sofia Maria',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: _textColor,
-              ),
-            ),
-            const Text(
-              '8th June, Ketchikan, Alaska, USA',
-              style: TextStyle(fontSize: 14, color: _subtextColor),
-            ),
-            const SizedBox(height: 32),
+            _buildProfileImage(),
 
+            SizedBox(height: 30),
             // Quick Info Cards
             Row(
               children: [
@@ -237,6 +210,50 @@ class ProfilePage extends StatelessWidget {
           fontWeight: FontWeight.bold,
           color: _subtextColor, // Muted color for section headers
         ),
+      ),
+    );
+  }
+
+  Widget _buildProfileImage() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          // User Avatar and Name
+          Align(
+            alignment: Alignment.centerLeft,
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: _accentColor.withOpacity(
+                0.1,
+              ), // Light accent background for avatar
+              child: Icon(
+                Icons.person,
+                size: 40,
+                color: _accentColor, // Accent color for the icon
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Sofia Maria',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: _textColor,
+                ),
+              ),
+              const Text(
+                '8th June, Alaska, USA',
+                style: TextStyle(fontSize: 14, color: _subtextColor),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+        ],
       ),
     );
   }

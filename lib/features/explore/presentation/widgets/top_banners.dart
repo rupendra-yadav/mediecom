@@ -23,7 +23,7 @@ class _TopBannerCarouselState extends State<TopBannerCarousel> {
         CarouselSlider(
           items: widget.imageUrls.map((url) {
             return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 6),
+              margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
@@ -63,7 +63,6 @@ class _TopBannerCarouselState extends State<TopBannerCarousel> {
           carouselController: _controller,
           options: CarouselOptions(
             height: 150,
-
             autoPlay: true,
             enlargeCenterPage: true,
             viewportFraction: 0.9,
@@ -76,7 +75,7 @@ class _TopBannerCarouselState extends State<TopBannerCarousel> {
           ),
         ),
 
-        const SizedBox(height: 18),
+        const SizedBox(height: 13),
 
         // // Dots Indicator
         // Row(

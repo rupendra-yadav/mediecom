@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/features/auth/presentation/pages/phone_number.dart';
+import 'package:mediecom/features/explore/presentation/pages/home_screen.dart';
 
 class SignUpScreen extends StatelessWidget {
   static const path = '/sign_up';
@@ -28,7 +29,7 @@ class SignUpScreen extends StatelessWidget {
                   // ),
                   // const SizedBox(height: 8),
                   const Text(
-                    "MediQuick",
+                    "SubhLaxmi Medicines",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
@@ -155,7 +156,7 @@ class SignUpScreen extends StatelessWidget {
                           ),
                           elevation: 0,
                         ),
-                        onPressed: () {},
+                        onPressed: () => context.go(HomeScreen.path),
                         child: const Text(
                           "Create Account",
                           style: TextStyle(
@@ -172,28 +173,23 @@ class SignUpScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Sign up with Google / Apple
-              Row(
-                children: [
-                  Expanded(child: Divider(color: Colors.grey[300])),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(
-                      "Or sign up with",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                  Expanded(child: Divider(color: Colors.grey[300])),
-                ],
-              ),
-
+              // // Sign up with Google / Apple
+              // Row(
+              //   children: [
+              //     Expanded(child: Divider(color: Colors.grey[300])),
+              //     const Padding(
+              //       padding: EdgeInsets.symmetric(horizontal: 8.0),
+              //       child: Text("", style: TextStyle(color: Colors.grey)),
+              //     ),
+              //     Expanded(child: Divider(color: Colors.grey[300])),
+              //   ],
+              // ),
               const SizedBox(height: 20),
 
-              _socialButton(icon: Iconsax.gallery, text: "Sign up with Google"),
-              const SizedBox(height: 12),
-              _socialButton(icon: Iconsax.airplane, text: "Sign up with Apple"),
-
-              const SizedBox(height: 28),
+              // _socialButton(icon: Iconsax.gallery, text: "Sign up with Google"),
+              // const SizedBox(height: 12),
+              // _socialButton(icon: Iconsax.airplane, text: "Sign up with Apple"),
+              // const SizedBox(height: 28),
 
               // Login link
               Row(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
+import 'package:mediecom/features/explore/presentation/widgets/gradient_appBar.dart';
 
 class SubcategoryPage extends StatefulWidget {
   static const path = '/sub_category';
@@ -26,22 +27,28 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text("Pet Supplements", style: AppTextStyles.karala12w800),
-        actions: const [
-          Icon(Iconsax.search_normal, color: Colors.black, size: 22),
-          SizedBox(width: 12),
-
-          SizedBox(width: 12),
-        ],
+      appBar: GradientAppBar(
+        name: "Pet Supplements",
+        address: "",
+        isUserName: false,
+        leading: true,
       ),
 
+      // appBar: AppBar(
+      //   elevation: 0,
+      //   backgroundColor: Colors.white,
+      //   leading: IconButton(
+      //     icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+      //     onPressed: () => Navigator.pop(context),
+      //   ),
+      //   title: const Text("Pet Supplements", style: AppTextStyles.karala12w800),
+      //   actions: const [
+      //     Icon(Iconsax.search_normal, color: Colors.black, size: 22),
+      //     SizedBox(width: 12),
+
+      //     SizedBox(width: 12),
+      //   ],
+      // ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
