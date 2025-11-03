@@ -1,9 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:mediecom/core/constants/api_constants.dart';
 import 'package:mediecom/core/extentions/text_style_extentions.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
+import 'package:mediecom/features/cart/presentation/blocs/cart_bloc.dart';
+import 'package:mediecom/features/cart/presentation/blocs/cart_state.dart';
 import 'package:mediecom/features/cart/presentation/widgets/quantity_selector.dart';
+
+import '../../../explore/domain/entities/product_entity.dart';
 
 class Cart extends StatefulWidget {
   static const path = '/cart';
@@ -14,7 +23,6 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
-  // Light theme colors
   static const Color _primaryLight = Color(0xFFF0F2F5);
   static const Color _cardBackground = Color(0xFFFFFFFF);
   static const Color _textColor = Color(0xFF212121);
@@ -25,42 +33,18 @@ class _CartState extends State<Cart> {
 
   final double deliveryFee = 3.50;
 
-  // Sample cart data (can later come from backend or provider)
-  final List<Map<String, dynamic>> cartItems = [
-    {
-      'productName': 'Paracetamol 500mg (10 tabs)',
-      'pharmacyName': 'City Pharmacy',
-      'price': 4.50,
-      'quantity': 1,
-      'imageUrl':
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRquzMUwap3aIcmZQhZ4FOztWQorUZSonP4wg&s',
-    },
-    {
-      'productName': 'Vitamin C 1000mg (30 caps)',
-      'pharmacyName': 'Wellness Hub',
-      'price': 7.00,
-      'quantity': 2,
-      'imageUrl':
-          'https://5.imimg.com/data5/SELLER/Default/2023/8/332350358/SI/JT/VF/98283251/amoxicillin-drugs3.jpg',
-    },
-    {
-      'productName': 'Antiseptic Solution 500ml',
-      'pharmacyName': 'Local Drug Store',
-      'price': 3.50,
-      'quantity': 1,
-      'imageUrl':
-          'https://cdn01.pharmeasy.in/dam/products/J21424/atorvastatin-10-mg-tablet-10-medlife-pure-generics-combo-3-1626532296.jpg',
-    },
-  ];
-
-  // 🔹 Calculate subtotal dynamically
+  // -------- FIXED PART ---------
   double get subtotal {
-    return cartItems.fold(0, (sum, item) {
-      return sum + (item['price'] * item['quantity']);
-    });
+    final items = (context.read<CartBloc>().state.items);
+    double sum = 0;
+    for (var item in items) {
+      final price = double.tryParse(item.M1_AMT1 ?? "0") ?? 0;
+      sum += price * (item.quantity ?? 1); // <--- qty included
+    }
+    return sum;
   }
+  // -----------------------------
 
-  // 🔹 Calculate total amount dynamically
   double get totalAmount => subtotal + deliveryFee;
 
   @override
@@ -72,14 +56,30 @@ class _CartState extends State<Cart> {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  for (int i = 0; i < cartItems.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildCartItem(context, i),
-                    ),
-                ],
+              child: BlocBuilder<CartBloc, CartState>(
+                builder: (context, state) {
+                  final data = state.items;
+                  if (data.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Your cart is empty',
+                        style: AppTextStyles.karala16w600.dark,
+                      ),
+                    );
+                  }
+                  return ListView.separated(
+                    itemBuilder: (context, index) {
+                      final item = data[index];
+                      return _buildCartItem(context, item);
+                    },
+                    itemCount: data.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    separatorBuilder: (BuildContext context, int index) {
+                      return SizedBox(height: 12.h);
+                    },
+                  );
+                },
               ),
             ),
           ),
@@ -89,94 +89,101 @@ class _CartState extends State<Cart> {
     );
   }
 
-  Widget _buildCartItem(BuildContext context, int index) {
-    final item = cartItems[index];
-
-    return Container(
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        color: _cardBackground,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+  Widget _buildCartItem(BuildContext context, ProductEntity item) {
+    return StatefulBuilder(
+      builder: (context, setStateInner) {
+        return Container(
+          padding: const EdgeInsets.all(12.0),
+          decoration: BoxDecoration(
+            color: _cardBackground,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Product Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              item['imageUrl'],
-              width: 70,
-              height: 70,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const SizedBox(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  item.image.isNotEmpty
+                      ? "${ApiConstants.productBase}${item.image[0]}"
+                      : "",
+
                   width: 70,
                   height: 70,
-                  child: Icon(Icons.medical_services, color: Colors.grey),
-                );
-              },
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Product Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item['productName'],
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: _textColor,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 70,
+                    height: 70,
+                    color: Colors.grey,
+                    child: Icon(Iconsax.image, size: 30.sp, color: Colors.grey),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  item['pharmacyName'],
-                  style: const TextStyle(fontSize: 13, color: _subtextColor),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Rs ${item['price'].toStringAsFixed(2)}/-',
+                      item.M1_NAME ?? 'Unknown Product',
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colours.success,
+                        color: _textColor,
                       ),
                     ),
-                    // 🔹 Quantity Selector triggers setState when changed
-                    QuantitySelector(
-                      initialQuantity: item['quantity'],
-                      minQuantity: 1,
-                      maxQuantity: 10,
-                      onQuantityChanged: (newQty) {
-                        setState(() {
-                          item['quantity'] = newQty;
-                        });
-                      },
+                    const SizedBox(height: 4),
+                    Text(
+                      item.M1_CST ?? 'Unknown Pharmacy',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: _subtextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Rs ${item.M1_AMT1}/-',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colours.success,
+                          ),
+                        ),
+
+                        QuantitySelector(
+                          initialQuantity: item.quantity,
+                          minQuantity: 1,
+                          maxQuantity: 10,
+                          onQuantityChanged: (newQty) {
+                            setStateInner(() {
+                              item.quantity = newQty;
+
+                              // ---- FIXED ----
+                              if (mounted) setState(() {});
+                              // --------------
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

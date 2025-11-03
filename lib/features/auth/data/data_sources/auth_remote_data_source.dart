@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 import 'package:mediecom/core/common/error/app_exceptions.dart';
+import 'package:mediecom/core/utils/utils.dart';
 
 import '../../../../core/constants/api_constants.dart';
 
@@ -11,7 +12,7 @@ import '../../../user/data/models/user_model.dart';
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String mobile);
 
-  Future<void> sendOTP(String mobile);
+  Future<String> sendOTP(String mobile);
 
   Future<UserModel> verifyOTP(String userId, String otp);
 }
@@ -30,13 +31,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         body: {'user_mobile': mobile},
       );
 
-      log('POST ${ApiConstants.signUp}');
-      log(
+      appLog('POST ${ApiConstants.signUp}');
+      appLog(
         'Request Headers: ${{'Content-Type': 'application/x-www-form-urlencoded'}}',
       );
-      log('Request Body: ${{'user_mobile': mobile}}');
-      log('Response Status: ${response.statusCode}');
-      log('Response Body: ${response.body}');
+      appLog('Request Body: ${{'user_mobile': mobile}}');
+      appLog('Response Status: ${response.statusCode}');
+      appLog('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = json.decode(response.body);
@@ -60,7 +61,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on ServerException catch (e) {
       throw ServerException(message: e.message, statusCode: e.statusCode);
     } catch (e) {
-      log('Unexpected error: $e');
+      appLog('Unexpected error: $e');
       throw ServerException(
         message: 'Unexpected error occurred: ${e.toString()}',
         statusCode: 500,
@@ -69,7 +70,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> sendOTP(String mobile) async {
+  Future<String> sendOTP(String mobile) async {
     try {
       final response = await client.post(
         Uri.parse(ApiConstants.sendOtp),
@@ -77,17 +78,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         body: {'user_mobile': mobile},
       );
 
-      log('POST ${ApiConstants.sendOtp}');
+      appLog('POST ${ApiConstants.sendOtp}');
       log(
         'Request Headers: ${{'Content-Type': 'application/x-www-form-urlencoded'}}',
       );
-      log('Request Body: ${{'user_mobile': mobile}}');
-      log('Response Status: ${response.statusCode}');
-      log('Response Body: ${response.body}');
+      appLog('Request Body: ${{'user_mobile': mobile}}');
+      appLog('Response Status: ${response.statusCode}');
+      appLog('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = json.decode(response.body);
         if (responseBody['response'] == 'success') {
+          return responseBody["user"];
         } else {
           throw ServerException(
             message: responseBody['message'] ?? 'Failed to send OTP',
@@ -105,7 +107,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on ServerException catch (e) {
       throw ServerException(message: e.message, statusCode: e.statusCode);
     } catch (e) {
-      log('Unexpected error: $e');
+      appLog('Unexpected error: $e');
       throw ServerException(
         message: 'Unexpected error occurred: ${e.toString()}',
         statusCode: 500,
@@ -122,19 +124,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         body: {'user_id': userId, 'otp': otp},
       );
 
-      log('POST ${ApiConstants.verifyOtp}');
+      appLog('POST ${ApiConstants.verifyOtp}');
       log(
         'Request Headers: ${{'Content-Type': 'application/x-www-form-urlencoded'}}',
       );
-      log('Request Body: ${{'user_id': userId, 'otp': otp}}');
-      log('Response Status: ${response.statusCode}');
-      log('Response Body: ${response.body}');
+      appLog('Request Body: ${{'user_id': userId, 'otp': otp}}');
+      appLog('Response Status: ${response.statusCode}');
+      appLog('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = json.decode(response.body);
-        if (responseBody['response'] == 'success' &&
-            responseBody.containsKey('data')) {
-          return UserModel.fromJson(responseBody['data'][0]);
+        if (responseBody['response'] == 'success') {
+          return UserModel.fromJson(responseBody['user'][0]);
         } else {
           throw ServerException(
             message: responseBody['message'] ?? 'Failed to verify OTP',
@@ -152,7 +153,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on ServerException catch (e) {
       throw ServerException(message: e.message, statusCode: e.statusCode);
     } catch (e) {
-      log('Unexpected error: $e');
+      appLog('Unexpected error: $e');
       throw ServerException(
         message: 'Unexpected error occurred: ${e.toString()}',
         statusCode: 500,

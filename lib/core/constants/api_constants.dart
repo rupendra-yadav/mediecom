@@ -5,6 +5,8 @@ abstract class ApiConstants {
   static const _baseUrl = 'https://www.subhlaxmimedical.com/myadmin/Api';
   static const sliderBase =
       "https://www.subhlaxmimedical.com/myadmin/uploads/slider/";
+  static const productBase =
+      "https://www.subhlaxmimedical.com/myadmin/uploads/product/";
 
   // ================================================================
   // AUTHENTICATION

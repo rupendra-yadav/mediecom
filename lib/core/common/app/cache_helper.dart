@@ -28,12 +28,12 @@ class CacheHelper {
   }
 
   //   // Check if user is a first-time user
-  //   bool isFirstTime() => _prefs.getBool(_firstTimerKey) ?? true;
+  bool isFirstTime() => _prefs.getBool(_firstTimerKey) ?? true;
 
-  //   // Set the first-time user status
-  //   Future<void> setIsFirstTime(bool value) async {
-  //     await _prefs.setBool(_firstTimerKey, value);
-  //   }
+  // Set the first-time user status
+  Future<void> setIsFirstTime(bool value) async {
+    await _prefs.setBool(_firstTimerKey, value);
+  }
 
   //   /// Cache user ID(Access token)
   //   Future<bool> cacheUserId(String userId) async {
@@ -57,7 +57,7 @@ class CacheHelper {
   //       final result = await _prefs.setString(_userKey, userJson);
   //       return result;
   //     } catch (e) {
-  //       log('Error caching user: $e');
+  //       appLog('Error caching user: $e');
   //       return false;
   //     }
   //   }
@@ -71,7 +71,7 @@ class CacheHelper {
   //       final user = UserModel.fromJson(userMap);
   //       return user;
   //     } else {
-  //       log('getUser: User does not exist');
+  //       appLog('getUser: User does not exist');
   //       return null;
   //     }
   //   }
@@ -123,7 +123,7 @@ class CacheHelper {
   // //       final result = await _prefs.setString(_userKey, userJson);
   // //       return result;
   // //     } catch (e) {
-  // //       log('Error caching user: $e');
+  // //       appLog('Error caching user: $e');
   // //       return false;
   // //     }
   // //   }
@@ -135,7 +135,7 @@ class CacheHelper {
   // //   //     final result = await _prefs.setString(_districtKey, districtJson);
   // //   //     return result;
   // //   //   } catch (e) {
-  // //   //     log('Error caching user: $e');
+  // //   //     appLog('Error caching user: $e');
   // //   //     return false;
   // //   //   }
   // //   // }
@@ -194,7 +194,7 @@ class CacheHelper {
   // //   //     final district = DistrictModel.fromJson(districtMap);
   // //   //     return district;
   // //   //   } else {
-  // //   //     log('getDistrict: District does not exist');
+  // //   //     appLog('getDistrict: District does not exist');
   // //   //     return null;
   // //   //   }
   // //   // }
@@ -208,7 +208,7 @@ class CacheHelper {
   // //       final user = UserModel.fromJson(userMap);
   // //       return user;
   // //     } else {
-  // //       log('getUser: User does not exist');
+  // //       appLog('getUser: User does not exist');
   // //       return null;
   // //     }
   // //   }

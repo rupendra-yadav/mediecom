@@ -10,7 +10,7 @@ import 'package:mediecom/features/cart/presentation/pages/cart.dart';
 import 'package:mediecom/features/explore/presentation/pages/home_screen.dart';
 import 'package:mediecom/features/explore/presentation/pages/product_details.dart';
 import 'package:mediecom/features/master/presentation/pages/subcategory_page.dart';
-import 'package:mediecom/features/notification/presentation/pages/push_notification.dart';
+import 'package:mediecom/features/notification/presentation/pages/notification.dart';
 import 'package:mediecom/features/orders/presentation/pages/orders.dart';
 import 'package:mediecom/features/user/presentation/pages/profile.dart';
 

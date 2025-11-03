@@ -11,39 +11,6 @@ import 'package:mediecom/features/master/presentation/pages/subcategory_page.dar
 class CategoryList extends StatelessWidget {
   final List<CategoryEntity> cate;
 
-  final List<Map<String, dynamic>> categories = [
-    {
-      "name": "Medicines",
-      "icon": Iconsax.health5,
-      "color": Color(0xFFFFF3CD), // light yellow
-    },
-    {
-      "name": "Health Care",
-      "icon": Iconsax.heart5,
-      "color": Color(0xFFFFE4E1), // light pink
-    },
-    {
-      "name": "Vitamins",
-      "icon": Iconsax.activity,
-      "color": Color(0xFFD7F9F7), // light teal
-    },
-    {
-      "name": "Devices",
-      "icon": Iconsax.cpu,
-      "color": Color(0xFFDCE7FF), // light blue
-    },
-    {
-      "name": "Baby Care",
-      "icon": Iconsax.health5,
-      "color": Color(0xFFFFF2F2), // soft rose
-    },
-    {
-      "name": "Ayurvedic",
-      "icon": Iconsax.health5,
-      "color": Color(0xFFE9F8E5), // light green
-    },
-  ];
-
   CategoryList({super.key, required this.cate});
 
   Color getRandomColor() {
@@ -57,21 +24,17 @@ class CategoryList extends StatelessWidget {
       Color(0xFFE9F8E5),
       Color(0xFFE3F2FD),
       Color(0xFFFCE4EC),
-
-      Color(0xFFFFF3CD), // light yellow
-
-      Color(0xFFFFE4E1), // light pink
-
-      Color(0xFFD7F9F7), // light teal
-
-      Color(0xFFDCE7FF), // light blue
-
-      Color(0xFFFFF2F2), // soft rose
-
-      Color(0xFFE9F8E5), // light green
     ];
     return colors[random.nextInt(colors.length)];
   }
+
+  /// icons IN SAME ORDER as your backend list
+  final List<IconData> categoryIcons = [
+    Iconsax.health5, // Diabetes essential
+    Iconsax.magicpen5, // New age store
+    Iconsax.brush_4, // Personal care
+    Iconsax.activity, // Vitamins & supplements
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -79,20 +42,22 @@ class CategoryList extends StatelessWidget {
       children: [
         Container(
           height: 130.h,
-          color: Colours.white, // soft yellow background
+          color: Colours.white,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             child: Row(
-              children: cate.map((category) {
+              children: cate.asMap().entries.map((entry) {
+                final index = entry.key;
+                final category = entry.value;
+
                 return GestureDetector(
                   onTap: () {
                     context.push(SubcategoryPage.path);
                   },
                   child: Container(
                     width: 80.w,
-
                     margin: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 8,
@@ -103,12 +68,7 @@ class CategoryList extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
-                          // category["color"],
-                          getRandomColor(),
-                          // category["color"],
-                          Colours.white,
-                        ],
+                        colors: [getRandomColor(), Colours.white],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                       ),
@@ -123,12 +83,16 @@ class CategoryList extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        Icon(Iconsax.icon, color: Colours.dark, size: 22),
+                        Icon(
+                          categoryIcons[index % categoryIcons.length],
+                          color: Colours.dark,
+                          size: 22,
+                        ),
                         const SizedBox(height: 8),
                         Text(
+                          category.m1Name,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
-                          category.m1Name,
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,

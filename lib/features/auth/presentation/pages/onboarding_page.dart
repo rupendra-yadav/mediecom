@@ -3,10 +3,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/core/common/widgets/safe_lottie_loader.dart';
 import 'package:mediecom/core/constants/media_constants.dart';
 import 'package:mediecom/core/extentions/color_extensions.dart';
 import 'package:mediecom/core/style/app_colors.dart';
+import 'package:mediecom/features/auth/presentation/auth_injection.dart';
 import 'package:mediecom/features/auth/presentation/pages/phone_number.dart';
 
 class OnboardingPage extends StatelessWidget {
@@ -15,6 +17,9 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cacheHelper = sl<CacheHelper>();
+    cacheHelper.setIsFirstTime(false);
+
     return Scaffold(
       backgroundColor: Colours.primaryColor,
       body: Column(

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mediecom/core/common/widgets/safe_lottie_loader.dart';
 import 'package:mediecom/core/constants/media_constants.dart';
 import 'package:mediecom/core/extentions/text_style_extentions.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
 import 'package:mediecom/dummydata.dart';
+import 'package:mediecom/features/explore/presentation/bloc/product_bloc.dart';
+import 'package:mediecom/injection_container.dart' as di;
+import 'package:mediecom/features/explore/presentation/pages/product_details.dart';
 import 'package:mediecom/features/explore/presentation/widgets/categories.dart';
 import 'package:mediecom/features/explore/presentation/widgets/gradient_appBar.dart';
 import 'package:mediecom/features/explore/presentation/widgets/products.dart';
@@ -36,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     context.read<BannerBloc>().add(FetchBannerEvent());
     context.read<CategoryBloc>().add(FetchCategoryEvent());
+    context.read<ProductBloc>().add(FetchProducts());
   }
 
   @override
@@ -165,7 +170,42 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: 8.h),
 
-              Products(products: sampleMedicins),
+              BlocBuilder<ProductBloc, ProductState>(
+                builder: (context, state) {
+                  if (state is ProductLoaded) {
+                    final data = state.products;
+                    return GridView.builder(
+                      padding: EdgeInsets.all(16),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.9,
+                        mainAxisSpacing: 4,
+                        crossAxisSpacing: 4,
+                      ),
+                      itemCount: data.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (_) => ProductDetailPage(
+                            //       tag: "product_$index",
+                            //       data: data[index],
+                            //     ),
+                            //   ),
+                            // );
+                          },
+                          child: ProductCard(data: data[index], index: index),
+                        );
+                      },
+                    );
+                  }
+                  return SizedBox.shrink();
+                },
+              ),
             ],
           ),
         ),

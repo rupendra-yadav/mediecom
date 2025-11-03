@@ -38,11 +38,9 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
         child: BlocListener<SendOtpBloc, SendOtpState>(
           listener: (context, state) {
             if (state is SendOtpSuccess) {
-              // Navigate to OTP Verification page
-              context.push(
-                OtpVerificationPage.path,
-                extra: _phoneController.text.trim(),
-              );
+              if (state.userId.isNotEmpty) {
+                context.push(OtpVerificationPage.path, extra: state.userId);
+              }
             }
           },
           child: Column(

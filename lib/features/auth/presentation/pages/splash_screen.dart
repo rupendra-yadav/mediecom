@@ -48,16 +48,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
     //   // --- Flattened Logic with Early Returns for Clarity ---
 
-    //   // 1. Is it the user's first time opening the app?
-    //   if (cacheHelper.isFirstTime()) {
-    //     destinationPath = WelcomeScreen.path;
-    //     context.go(destinationPath);
-    //     return;
-    //   }
+    // 1. Is it the user's first time opening the app?
+    if (cacheHelper.isFirstTime()) {
+      destinationPath = OnboardingPage.path;
+      context.go(destinationPath);
+      return;
+    }
 
     // 2. If not the first time, are they logged in?
-    log("${!cacheHelper.isLoggedIn()}");
-    if (cacheHelper.isLoggedIn()) {
+
+    if (!cacheHelper.isLoggedIn()) {
       destinationPath = PhoneNumberPage.path;
       context.go(destinationPath);
       return;
@@ -73,8 +73,8 @@ class _SplashScreenState extends State<SplashScreen> {
     //   }
 
     // 4. If all checks pass, they are a returning, logged-in user with a profile.
-    // destinationPath = HomeScreen.path;
-    destinationPath = OnboardingPage.path;
+    destinationPath = HomeScreen.path;
+    // destinationPath = OnboardingPage.path;
     context.go(destinationPath);
 
     //   // for vendor app

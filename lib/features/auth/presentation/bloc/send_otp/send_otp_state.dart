@@ -12,7 +12,9 @@ class SendOtpInitial extends SendOtpState {}
 class SendOtpLoading extends SendOtpState {}
 
 class SendOtpSuccess extends SendOtpState {
+  final String userId;
 
+  SendOtpSuccess({required this.userId});
 }
 
 class SendOtpError extends SendOtpState {

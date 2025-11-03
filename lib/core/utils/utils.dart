@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:flutter/foundation.dart';
 import 'package:mediecom/core/common/error/app_failures.dart';
 // import 'dart:developer';
 
@@ -43,7 +46,7 @@ import 'package:mediecom/core/common/error/app_failures.dart';
 //   // if (await canLaunchUrl(safeUri)) {
 //   await launchUrl(safeUri, mode: LaunchMode.externalApplication);
 //   // } else {
-//   // log("Could not launch $url");
+//   // appLog("Could not launch $url");
 //   // }
 // }
 
@@ -68,5 +71,17 @@ String mapFailureToMessage(Failure failure) {
       return 'Network Error: ${failure.message}';
     default:
       return 'Unexpected Error';
+  }
+}
+
+void appLog(String msg) {
+  if (kDebugMode) {
+    // prints only in debug mode
+    // no logs in release builds
+    // kDebugMode = true only when debug
+    // false in release / profile
+    // so safe for production
+    // ignore: avoid_print
+    log(msg);
   }
 }

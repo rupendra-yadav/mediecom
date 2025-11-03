@@ -46,15 +46,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         userId: widget.phoneNumber,
       ),
     );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        backgroundColor: Colours.success,
-        content: Text('OTP Verified! Logging in...'),
-      ),
-    );
-
-    // context.go(HomeScreen.path);
   }
 
   void _resendOtp() {
@@ -87,11 +78,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 ),
               );
             } else if (state is VerifyOtpSuccess) {
+              log(state.user.toString());
               final cacheHelper = sl<CacheHelper>();
               cacheHelper.setIsLoggedIn(true);
-              log("${cacheHelper.isLoggedIn()}");
+              // appLog("${cacheHelper.isLoggedIn()}");
               context.push(HomeScreen.path);
-              // Navigator.of(context, rootNavigator: true).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  backgroundColor: Colours.success,
+                  content: Text('OTP Verified! Logging in...'),
+                ),
+              );
             }
           },
           child: SingleChildScrollView(

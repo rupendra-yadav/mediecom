@@ -30,7 +30,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> sendOTP(String mobile) async {
+  Future<Either<Failure, String>> sendOTP(String mobile) async {
     try {
       final user = await remoteDataSource.sendOTP(mobile);
       return Right(user);

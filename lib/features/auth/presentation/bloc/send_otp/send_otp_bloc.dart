@@ -23,7 +23,7 @@ class SendOtpBloc extends Bloc<SendOtpEvent, SendOtpState> {
             statusCode: failure.statusCode,
           ),
         ),
-        (_) => emit(SendOtpSuccess()),
+        (userId) => emit(SendOtpSuccess(userId: userId)),
       );
     });
   }

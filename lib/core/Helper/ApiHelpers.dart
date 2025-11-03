@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:mediecom/core/common/error/app_exceptions.dart';
 import 'package:mediecom/core/constants/api_constants.dart';
+import 'package:mediecom/core/utils/utils.dart';
 import 'package:path/path.dart' as path;
 
 class ApiHelpers {
@@ -30,10 +31,10 @@ class ApiHelpers {
     try {
       final response = await http.post(Uri.parse(endKey), body: requestBody);
 
-      log("API URL: ${endKey}");
-      log("Request: ${requestBody}");
-      log("Status Code: ${response.statusCode}");
-      log("Response: ${response.body}");
+      appLog("API URL: ${endKey}");
+      appLog("Request: ${requestBody}");
+      appLog("Status Code: ${response.statusCode}");
+      appLog("Response: ${response.body}");
 
       if (response.statusCode == 200) {
         // ✅ Just return raw response string
@@ -47,7 +48,7 @@ class ApiHelpers {
     } on http.ClientException {
       throw NetworkException(message: "No Internet Connection", statusCode: 0);
     } catch (e, s) {
-      log("Error in updateListing: $e\n$s");
+      appLog("Error in updateListing: $e\n$s");
       throw ServerException(
         message: 'Unexpected error occurred',
         statusCode: 500,
@@ -79,16 +80,16 @@ class ApiHelpers {
       // add optional fields
       request.fields.addAll(fields);
 
-      log("API URL: ${ApiConstants.uploadFile}");
-      log("Uploading file: ${file.path}");
-      log("Extra fields: $fields");
+      appLog("API URL: ${ApiConstants.uploadFile}");
+      appLog("Uploading file: ${file.path}");
+      appLog("Extra fields: $fields");
 
       // send request
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
 
-      log("Status Code: ${response.statusCode}");
-      log("Response: ${response.body}");
+      appLog("Status Code: ${response.statusCode}");
+      appLog("Response: ${response.body}");
 
       if (response.statusCode == 200) {
         return {"response": response.body, "status": true};
@@ -101,7 +102,7 @@ class ApiHelpers {
     } on http.ClientException {
       throw NetworkException(message: "No Internet Connection", statusCode: 0);
     } catch (e, s) {
-      log("Error in uploadFile: $e\n$s");
+      appLog("Error in uploadFile: $e\n$s");
       throw ServerException(
         message: 'Unexpected error occurred',
         statusCode: 500,

@@ -5,7 +5,7 @@ import 'package:mediecom/features/user/domain/entities/user_entity.dart';
 abstract class AuthRepository {
   Future<Either<Failure, UserEntity>> login(String mobile);
 
-  Future<Either<Failure, void>> sendOTP(String mobile);
+  Future<Either<Failure, String>> sendOTP(String mobile);
 
   Future<Either<Failure, UserEntity>> verifyOTP(String userId, String otp);
 }

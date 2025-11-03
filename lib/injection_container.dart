@@ -3,6 +3,11 @@ import 'package:http/http.dart' as http;
 import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/features/auth/presentation/auth_injection.dart';
 import 'package:mediecom/features/master/presentation/master_injection.dart';
+import 'package:mediecom/features/notification/notification_injection.dart';
+import 'package:mediecom/features/orders/orders_injection.dart';
+import 'package:mediecom/features/user/presentation/profile_injection.dart';
+import 'package:mediecom/features/cart/presentation/cart_injection.dart';
+import 'package:mediecom/features/explore/presentation/explore_injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
@@ -23,8 +28,11 @@ Future<void> init() async {
   /// Initialize each feature's injection
   initAuth();
   initMaster();
-  // initProfile();
-  // initExplore();
+  initProfile();
+  initOrders();
+  initNotification();
+  initCartDependencies();
+  initExplore();
   // initVendors();
   // initBooking();
   // initWishlist();

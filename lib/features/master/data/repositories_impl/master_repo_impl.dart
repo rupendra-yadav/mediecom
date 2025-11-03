@@ -4,6 +4,7 @@ import 'package:mediecom/core/common/error/app_failures.dart';
 import 'package:mediecom/features/master/data/data_sources/master_remote_data_source.dart';
 import 'package:mediecom/features/master/domain/entities/category_entity.dart';
 import 'package:mediecom/features/master/domain/entities/slider_entity.dart';
+import 'package:mediecom/features/master/domain/entities/sub_category_entity.dart';
 import 'package:mediecom/features/master/domain/repositories/master_repository.dart';
 
 class MasterRepositoryImpl implements MasterRepository {
@@ -64,18 +65,24 @@ class MasterRepositoryImpl implements MasterRepository {
   //   }
   // }
 
-  // @override
-  // Future<Either<Failure, List<SubCategoryEntity>>> getSubCategory(String catId)async {
-  //   try {
-  //     final user = await remoteDataSource.getSubCategory(catId);
-  //     return Right(user);
-  //   } on ServerException catch (e) {
-  //     return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
-  //   } on NetworkException catch (e) {
-  //     return Left(NetworkFailure(message: e.message, statusCode: e.statusCode));
-  //   } catch (e) {
-  //     return const Left(UnexpectedFailure(
-  //         message: 'Unexpected error occurred', statusCode: 500));
-  //   }
-  // }
+  @override
+  Future<Either<Failure, List<SubcategoryEntity>>> getSubCategory(
+    String catId,
+  ) async {
+    try {
+      final user = await remoteDataSource.getSubCategory(catId);
+      return Right(user);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message, statusCode: e.statusCode));
+    } catch (e) {
+      return const Left(
+        UnexpectedFailure(
+          message: 'Unexpected error occurred',
+          statusCode: 500,
+        ),
+      );
+    }
+  }
 }

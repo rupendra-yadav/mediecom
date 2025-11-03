@@ -4,13 +4,13 @@ import 'package:mediecom/features/auth/domain/repositories/auth_repo.dart';
 
 import '../../../../core/common/usecases/usecase.dart';
 
-class SendOtpUseCase implements UseCase<void, String> {
+class SendOtpUseCase implements UseCase<String, String> {
   final AuthRepository repository;
 
   SendOtpUseCase({required this.repository});
 
   @override
-  Future<Either<Failure, void>> call(String mobile) async {
+  Future<Either<Failure, String>> call(String mobile) async {
     return await repository.sendOTP(mobile);
   }
 }

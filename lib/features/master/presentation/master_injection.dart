@@ -4,8 +4,10 @@ import 'package:mediecom/features/master/data/repositories_impl/master_repo_impl
 import 'package:mediecom/features/master/domain/repositories/master_repository.dart';
 import 'package:mediecom/features/master/domain/use_cases/get_banners_usecase.dart';
 import 'package:mediecom/features/master/domain/use_cases/get_category_use_case.dart';
+import 'package:mediecom/features/master/domain/use_cases/get_subcategory_usecase.dart';
 import 'package:mediecom/features/master/presentation/blocs/banner/banner_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/category/category_bloc.dart';
+import 'package:mediecom/features/master/presentation/blocs/sub_category/sub_category_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -16,9 +18,9 @@ void initMaster() {
     () => GetCategoryUseCase(repository: sl.call()),
   );
 
-  // sl.registerLazySingleton<GetSubCategoryUseCase>(
-  //   () => GetSubCategoryUseCase(repository: sl.call()),
-  // );
+  sl.registerLazySingleton<GetSubcategoryUsecase>(
+    () => GetSubcategoryUsecase(repository: sl.call()),
+  );
 
   sl.registerLazySingleton<GetBannerUseCase>(
     () => GetBannerUseCase(repository: sl.call()),
@@ -40,7 +42,7 @@ void initMaster() {
 
   /// Master  Bloc Injection
   sl.registerFactory(() => CategoryBloc(getCategoryUseCase: sl()));
-  // sl.registerFactory(() => SubCategoryBloc(getSubCategoryUseCase: sl()));
+  sl.registerFactory(() => SubCategoryBloc(getSubCategoryUseCase: sl()));
   // sl.registerFactory(
   // () => NestedSubCategoryBloc(getNestedSubCategoryUseCase: sl()),
   // );

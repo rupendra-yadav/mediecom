@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mediecom/core/common/widgets/full_screen_loader.dart';
+import 'package:mediecom/features/user/domain/entities/user_entity.dart';
+import 'package:mediecom/features/user/presentation/blocs/profile/profile_bloc.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   static const path = '/profile';
   const ProfilePage({super.key});
 
@@ -14,19 +18,53 @@ class ProfilePage extends StatelessWidget {
   static const Color _accentColor = Color(
     0xFF1E88E5,
   ); // A blue accent for active elements
-  static const Color _iconColor = Color(0xFF616161); // Medium grey icon color
+  static const Color _iconColor = Color(0xFF616161);
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
 
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    context.read<ProfileBloc>().add(GetProfileEvent(userId: "4"));
+    // });
+  }
+
+  // Medium grey icon color
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _primaryLight, // Light primary background
+      backgroundColor: ProfilePage._primaryLight, // Light primary background
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildProfileImage(),
+            BlocBuilder<ProfileBloc, ProfileState>(
+              builder: (context, state) {
+                if (state is ProfileLoaded) {
+                  final UserEntity user = state.user;
+                  return _buildProfileImage(
+                    user.m2Chk1 ?? "name",
+                    user.m2Chk2 ?? "email",
+                  );
+                } else if (state is ProfileLoading) {
+                  // WidgetsBinding.instance.addPostFrameCallback((_) {
+                  //   showDialog(
+                  //     context: context,
+                  //     barrierDismissible: false,
+                  //     builder: (_) => const FullScreenLoader(),
+                  //   );
+                  // });
+
+                  return Center(child: Text("Error Loading User"));
+                }
+                return Center(child: Text("Error Loading User"));
+              },
+            ),
 
             SizedBox(height: 30),
             // Quick Info Cards
@@ -143,7 +181,7 @@ class ProfilePage extends StatelessWidget {
               child: Text(
                 'App Version 1.0.0',
                 style: TextStyle(
-                  color: _subtextColor.withOpacity(0.6),
+                  color: ProfilePage._subtextColor.withOpacity(0.6),
                   fontSize: 12,
                 ),
               ),
@@ -164,7 +202,7 @@ class ProfilePage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: _cardBackground, // White card background
+        color: ProfilePage._cardBackground, // White card background
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -180,11 +218,14 @@ class ProfilePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: _accentColor, size: 24),
+          Icon(icon, color: ProfilePage._accentColor, size: 24),
           const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(fontSize: 12, color: _subtextColor),
+            style: const TextStyle(
+              fontSize: 12,
+              color: ProfilePage._subtextColor,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
@@ -192,7 +233,7 @@ class ProfilePage extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: _textColor,
+              color: ProfilePage._textColor,
             ),
           ),
         ],
@@ -208,13 +249,13 @@ class ProfilePage extends StatelessWidget {
         style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          color: _subtextColor, // Muted color for section headers
+          color: ProfilePage._subtextColor, // Muted color for section headers
         ),
       ),
     );
   }
 
-  Widget _buildProfileImage() {
+  Widget _buildProfileImage(String name, String email) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -224,13 +265,13 @@ class ProfilePage extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: CircleAvatar(
               radius: 40,
-              backgroundColor: _accentColor.withOpacity(
+              backgroundColor: ProfilePage._accentColor.withOpacity(
                 0.1,
               ), // Light accent background for avatar
               child: Icon(
                 Icons.person,
                 size: 40,
-                color: _accentColor, // Accent color for the icon
+                color: ProfilePage._accentColor, // Accent color for the icon
               ),
             ),
           ),
@@ -238,17 +279,20 @@ class ProfilePage extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Sofia Maria',
+              Text(
+                name,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: _textColor,
+                  color: ProfilePage._textColor,
                 ),
               ),
-              const Text(
-                '8th June, Alaska, USA',
-                style: TextStyle(fontSize: 14, color: _subtextColor),
+              Text(
+                email,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: ProfilePage._subtextColor,
+                ),
               ),
             ],
           ),
@@ -269,7 +313,7 @@ class ProfilePage extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
       decoration: BoxDecoration(
-        color: _cardBackground, // White card background
+        color: ProfilePage._cardBackground, // White card background
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -283,24 +327,30 @@ class ProfilePage extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        leading: Icon(icon, color: isLogout ? Colors.red.shade400 : _iconColor),
+        leading: Icon(
+          icon,
+          color: isLogout ? Colors.red.shade400 : ProfilePage._iconColor,
+        ),
         title: Text(
           title,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: isLogout ? Colors.red.shade400 : _textColor,
+            color: isLogout ? Colors.red.shade400 : ProfilePage._textColor,
           ),
         ),
         trailing: trailingText != null
             ? Text(
                 trailingText,
-                style: const TextStyle(color: _subtextColor, fontSize: 14),
+                style: const TextStyle(
+                  color: ProfilePage._subtextColor,
+                  fontSize: 14,
+                ),
               )
             : const Icon(
                 Icons.arrow_forward_ios,
                 size: 14,
-                color: _subtextColor,
+                color: ProfilePage._subtextColor,
               ),
         onTap: onTap,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

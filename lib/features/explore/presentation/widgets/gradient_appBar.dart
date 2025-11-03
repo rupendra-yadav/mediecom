@@ -4,7 +4,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:mediecom/core/extentions/text_style_extentions.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
-import 'package:mediecom/features/notification/presentation/pages/push_notification.dart';
+import 'package:mediecom/features/notification/presentation/pages/notification.dart';
 
 class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String name;
