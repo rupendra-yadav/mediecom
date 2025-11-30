@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:mediecom/core/utils/utils.dart';
+import 'package:mediecom/features/user/data/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // import '../../../features/user/data/model/user_model.dart';
@@ -36,45 +38,45 @@ class CacheHelper {
   }
 
   //   /// Cache user ID(Access token)
-  //   Future<bool> cacheUserId(String userId) async {
-  //     try {
-  //       final result = await _prefs.setString(_userIdKey, userId);
-  //       return result;
-  //     } catch (_) {
-  //       return false;
-  //     }
-  //   }
+  Future<bool> cacheUserId(String userId) async {
+    try {
+      final result = await _prefs.setString(_userIdKey, userId);
+      return result;
+    } catch (_) {
+      return false;
+    }
+  }
 
   //   /// Get user ID
-  //   String? getUserId() {
-  //     return _prefs.getString(_userIdKey);
-  //   }
+  String? getUserId() {
+    return _prefs.getString(_userIdKey);
+  }
 
   //   ///Cache user
-  //   Future<bool> cacheUser(UserModel user) async {
-  //     try {
-  //       final userJson = jsonEncode(user.toJson());
-  //       final result = await _prefs.setString(_userKey, userJson);
-  //       return result;
-  //     } catch (e) {
-  //       appLog('Error caching user: $e');
-  //       return false;
-  //     }
-  //   }
+  Future<bool> cacheUser(UserModel user) async {
+    try {
+      final userJson = jsonEncode(user.toJson());
+      final result = await _prefs.setString(_userKey, userJson);
+      return result;
+    } catch (e) {
+      appLog('Error caching user: $e');
+      return false;
+    }
+  }
 
-  //   /// GetUserDetails
-  //   UserModel? getUser() {
-  //     final userJson = _prefs.getString(_userKey);
+  /// GetUserDetails
+  UserModel? getUser() {
+    final userJson = _prefs.getString(_userKey);
 
-  //     if (userJson != null) {
-  //       final userMap = jsonDecode(userJson);
-  //       final user = UserModel.fromJson(userMap);
-  //       return user;
-  //     } else {
-  //       appLog('getUser: User does not exist');
-  //       return null;
-  //     }
-  //   }
+    if (userJson != null) {
+      final userMap = jsonDecode(userJson);
+      final user = UserModel.fromJson(userMap);
+      return user;
+    } else {
+      appLog('getUser: User does not exist');
+      return null;
+    }
+  }
   // }
 
   // // import 'dart:convert';

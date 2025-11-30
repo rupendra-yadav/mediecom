@@ -89,6 +89,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = json.decode(response.body);
         if (responseBody['response'] == 'success') {
+          if (responseBody['user'] == null) {
+            final user = await login(mobile);
+            return user.m2Id ?? "";
+          }
           return responseBody["user"];
         } else {
           throw ServerException(

@@ -3,6 +3,7 @@ import 'package:mediecom/core/common/error/app_exceptions.dart';
 import 'package:mediecom/core/common/error/app_failures.dart';
 import 'package:mediecom/features/auth/data/data_sources/auth_remote_data_source.dart';
 import 'package:mediecom/features/auth/domain/repositories/auth_repo.dart';
+import 'package:mediecom/features/user/data/models/user_model.dart';
 import 'package:mediecom/features/user/domain/entities/user_entity.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -49,7 +50,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> verifyOTP(
+  Future<Either<Failure, UserModel>> verifyOTP(
     String userId,
     String otp,
   ) async {

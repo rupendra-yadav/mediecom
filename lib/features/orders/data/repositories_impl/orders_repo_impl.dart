@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:mediecom/core/common/error/app_exceptions.dart';
 import 'package:mediecom/core/common/error/app_failures.dart';
+import 'package:mediecom/core/utils/utils.dart';
 import 'package:mediecom/features/orders/data/data_sources/order_remote_data_source.dart'
     hide ServerException;
 import 'package:mediecom/features/orders/domain/entities/order_details_entity.dart';
@@ -103,6 +104,7 @@ class OrdersRepositoryImpl implements OrdersRepository {
     Map<String, dynamic> orderData,
   ) async {
     try {
+      appLog('Inserting order with data: $orderData');
       await remoteDataSource.insertOrder(orderData);
       return const Right(null);
     } on ServerException catch (e) {

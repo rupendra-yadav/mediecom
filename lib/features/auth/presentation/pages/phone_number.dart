@@ -64,28 +64,28 @@ class _PhoneNumberPageState extends State<PhoneNumberPage> {
               _buildPhoneInputField(),
               const SizedBox(height: 30),
               _buildSendOtpButton(),
-              // const SizedBox(height: 160),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Don\'t have an account?',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    TextButton(
-                      onPressed: () => context.go(SignUpScreen.path),
-                      child: const Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          color: Colours.primaryColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              Expanded(child: SizedBox(height: 10)),
+              // Expanded(
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       Text(
+              //         'Don\'t have an account?',
+              //         style: TextStyle(color: Colors.grey[700]),
+              //       ),
+              //       TextButton(
+              //         onPressed: () => context.go(SignUpScreen.path),
+              //         child: const Text(
+              //           'Sign Up',
+              //           style: TextStyle(
+              //             color: Colours.primaryColor,
+              //             fontWeight: FontWeight.w600,
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
         ),

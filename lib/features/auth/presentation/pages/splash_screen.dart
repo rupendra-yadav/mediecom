@@ -6,10 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/core/constants/media_constants.dart';
 import 'package:mediecom/core/extentions/context_extensions.dart';
+import 'package:mediecom/core/utils/utils.dart';
 import 'package:mediecom/features/auth/presentation/auth_injection.dart';
 import 'package:mediecom/features/auth/presentation/pages/onboarding_page.dart';
 import 'package:mediecom/features/auth/presentation/pages/phone_number.dart';
 import 'package:mediecom/features/explore/presentation/pages/home_screen.dart';
+import 'package:mediecom/features/user/presentation/pages/update_profile.dart';
 // import 'package:skillslinks/core/constants/media_constants.dart';
 // import 'package:skillslinks/core/extentions/context_extensions.dart';
 // import 'package:skillslinks/features/auth/presentation/screens/welcome_screen.dart';
@@ -63,14 +65,15 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    //   // 3. If logged in, is their profile complete?
-    //   // This is a safer way to check, handling both null user and empty name.
-    //   final user = cacheHelper.getUser();
-    //   if (user == null || user.name.isEmpty) {
-    //     destinationPath = CreateProfileScreen.path;
-    //     context.go(destinationPath);
-    //     return;
-    //   }
+    // 3. If logged in, is their profile complete?
+    // This is a safer way to check, handling both null user and empty name.
+    final user = cacheHelper.getUser();
+    if (user == null || user.m2Chk1 == null || user.m2Chk1!.isEmpty) {
+      appLog("user data incomplete or missing: ${user.toString()}");
+      destinationPath = UpdateProfileScreen.path;
+      context.go(destinationPath);
+      return;
+    }
 
     // 4. If all checks pass, they are a returning, logged-in user with a profile.
     destinationPath = HomeScreen.path;

@@ -28,12 +28,14 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Container(
       height: preferredSize.height,
+      // color: Colours.primaryBackgroundColour,/
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colours.primaryColor,
-            Colours.primaryColor,
-            Colours.highlightBackgroundColour,
+            Colours.primaryBackgroundColour,
+            Colours.primaryBackgroundColour,
+            // Colours.primaryColor,
+            Colours.white,
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -53,7 +55,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ? IconButton(
                         icon: const Icon(
                           Icons.arrow_back_ios,
-                          color: Colors.white,
+                          color: Colours.dark,
                           size: 18,
                         ),
                         onPressed: () => Navigator.pop(context),
@@ -67,7 +69,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
                         Text(
                           "Hi, $name 👋",
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: Colours.primaryColor,
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                           ),
@@ -78,20 +80,20 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
                             const Icon(
                               Iconsax.location5,
                               size: 14,
-                              color: Colors.white70,
+                              color: Colours.primaryColor,
                             ),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 address,
-                                style: AppTextStyles.karala10w400,
+                                style: AppTextStyles.w400(10),
                               ),
                             ),
                           ],
                         ),
                       ],
                       if (!isUserName) ...[
-                        Text(name, style: AppTextStyles.karala16w800.white),
+                        Text(name, style: AppTextStyles.w800(16).primary),
                       ],
                     ],
                   ),
@@ -119,12 +121,12 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onChanged: onSearchChanged,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colours.backgroundColour,
+                  fillColor: Colours.white,
                   enabled: true,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: Colors.transparent, // no visible border
+                      color: Colours.primaryColor, // no visible border
                       width: 0,
                     ),
                   ),
@@ -137,7 +139,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
 
                   hintText: "Search medicines, brands...",
-                  hintStyle: AppTextStyles.karala14w400,
+                  hintStyle: AppTextStyles.w600(14),
                   prefixIcon: const Icon(
                     Iconsax.search_normal,
                     color: Colors.grey,

@@ -3,9 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:mediecom/core/constants/api_constants.dart';
+import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
+import 'package:mediecom/features/cart/presentation/blocs/cart_bloc.dart';
+import 'package:mediecom/features/cart/presentation/blocs/cart_event.dart';
+import 'package:mediecom/features/explore/domain/entities/product_entity.dart';
 import 'package:mediecom/features/explore/presentation/bloc/product_bloc.dart';
 import 'package:mediecom/features/explore/presentation/widgets/gradient_appBar.dart';
+import 'package:mediecom/features/master/presentation/blocs/category/category_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/sub_category/sub_category_bloc.dart';
 
 class SubcategoryPage extends StatefulWidget {
@@ -30,7 +35,7 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
   @override
   void initState() {
     super.initState();
-    context.read<SubCategoryBloc>().add(FetchSubCategoryEvent(catId: "catId"));
+    // context.read<SubCategoryBloc>().add(FetchSubCategoryEvent(catId: "catId"));
   }
 
   @override
@@ -63,21 +68,21 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Left side subcategory
-          BlocBuilder<SubCategoryBloc, SubCategoryState>(
+          BlocBuilder<CategoryBloc, CategoryState>(
             builder: (context, state) {
-              if (state is SubCategorySuccess) {
-                final subcategory = state.subCategories;
-                final categoryName = subcategory[0].categoryName;
+              if (state is CategorySuccess) {
+                final subcategory = state.categories;
+                // final categoryName = subcategory[0].;
                 return Container(
                   width: 90.w,
-                  color: const Color(0xFFF8F8F8),
+                  color: Colours.primaryBackgroundColour,
                   child: Column(
                     children: [
-                      _buildCategoryItem(categoryName ?? "", false),
-                      Divider(),
+                      // _buildCategoryItem(categoryName ?? "", false),
+                      // Divider(),
                       ListView.builder(
                         shrinkWrap: true,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        // padding: const EdgeInsets.symmetric(vertical: 16),
                         itemCount: subcategory.length,
                         itemBuilder: (context, index) {
                           final isSelected = selectedIndex == index;
@@ -105,7 +110,7 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
           // Right side product list
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: ListView(
                 children: [
                   const SizedBox(height: 8),
@@ -129,18 +134,7 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
                           itemCount: products.length,
                           itemBuilder: (context, index) {
                             final data = products[index];
-                            return _buildProductCard(
-                              imageUrl: data.image.isNotEmpty
-                                  ? "${ApiConstants.productBase}${data.image[0]}"
-                                  : "",
-                              title: data.M1_NAME ?? "",
-                              subtitle:
-                                  "${data.M1_ADD1 ?? ""} ${data.M1_ADD1 ?? ""}\nGet by Fri, 31 Oct",
-                              price: "₹${data.M1_AMT1 ?? ""}",
-                              originalPrice: "₹${data.M1_AMT2 ?? ""}",
-                              discount: "${data.M1_GROUP ?? ""}% off",
-                              offerPrice: "₹${data.M1_VAL ?? ""}",
-                            );
+                            return _buildProductCard(data: data);
                           },
                         );
                         // return _buildProductCard(
@@ -228,15 +222,17 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
     );
   }
 
-  Widget _buildProductCard({
-    required String imageUrl,
-    required String title,
-    required String subtitle,
-    required String price,
-    required String originalPrice,
-    required String discount,
-    required String offerPrice,
-  }) {
+  Widget _buildProductCard({required ProductEntity data}) {
+    // imageUrl: data.image.isNotEmpty
+    //     ? "${ApiConstants.productBase}${data.image[0]}"
+    //     : "",
+    // title: data.M1_NAME ?? "",
+    // subtitle:
+    //     "${data.M1_ADD1 ?? ""} ${data.M1_ADD1 ?? ""}\nGet by Fri, 31 Oct",
+    // price: "₹${data.M1_AMT1 ?? ""}",
+    // originalPrice: "₹${data.M1_AMT2 ?? ""}",
+    // discount: "${data.M1_GROUP ?? ""}% off",
+    // offerPrice: "₹${data.M1_VAL ?? ""}",
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(12),
@@ -251,7 +247,9 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Image.network(
-              imageUrl,
+              data.image.isNotEmpty
+                  ? "${ApiConstants.productBase}${data.image[0]}"
+                  : "",
               width: 80,
               height: 80,
               fit: BoxFit.cover,
@@ -270,7 +268,7 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  data.M1_NAME ?? "Medicine name",
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
@@ -278,14 +276,14 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  subtitle,
+                  data.M1_CST ?? "",
                   style: const TextStyle(fontSize: 11, color: Colors.black54),
                 ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
                     Text(
-                      price,
+                      data.M1_AMT2 ?? "",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -293,7 +291,7 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      originalPrice,
+                      data.M1_AMT1 ?? "",
                       style: const TextStyle(
                         decoration: TextDecoration.lineThrough,
                         color: Colors.black45,
@@ -302,7 +300,7 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      discount,
+                      "discount",
                       style: const TextStyle(
                         color: Colors.green,
                         fontSize: 12,
@@ -321,25 +319,44 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
                 //   ),
                 // ),
                 const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: 80,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.deepOrange),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      "ADD",
-                      style: TextStyle(
-                        color: Colors.deepOrange,
-                        fontWeight: FontWeight.w600,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        context.read<CartBloc>().add(AddToCart(item: data));
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colours.primaryColor,
+                            content: Text(
+                              'Added to cart',
+                              style: TextStyle(color: Colours.white),
+                            ),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: 80,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colours.primaryColor),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          "ADD",
+                          style: TextStyle(
+                            color: Colours.primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),

@@ -1,19 +1,30 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:mediecom/core/common/error/app_failures.dart';
+import 'package:mediecom/core/utils/utils.dart';
+import 'package:mediecom/features/user/data/models/user_model.dart';
 import 'package:mediecom/features/user/domain/entities/user_entity.dart';
 import 'package:mediecom/features/user/domain/use_cases/fetch_user_details_usecase.dart';
+import 'package:mediecom/features/user/domain/use_cases/update_photo_usecase.dart';
+import 'package:mediecom/features/user/domain/use_cases/update_user_details_usecase.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final FetchUserDetailsUsecase _fetchUserDetailsUsecase;
-  ProfileBloc(this._fetchUserDetailsUsecase) : super(ProfileInitial()) {
+  final UpdateUserDetailsUsecase updateUserDetailsUsecase;
+  final UploadPhotoUseCase uploadPhotoUseCase;
+  ProfileBloc(
+    this._fetchUserDetailsUsecase,
+    this.updateUserDetailsUsecase,
+    this.uploadPhotoUseCase,
+  ) : super(ProfileInitial()) {
     on<GetProfileEvent>(_onGetProfile);
-    // on<UpdateProfileEvent>(_onUpdateAccount);
+    on<UpdateProfileEvent>(_onUpdateAccount);
     // on<UpdateImageEvent>(_onUpdateImage);
   }
 
@@ -28,7 +39,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     failureOrSuccess.fold(
       (failure) => emit(
         ProfileError(
-          message: _mapFailureToMessage(failure),
+          message: mapFailureToMessage(failure),
           statusCode: failure.statusCode,
         ),
       ),
@@ -36,38 +47,78 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     );
   }
 
-  // Future<void> _onUpdateAccount(UpdateProfileEvent event, Emitter<ProfileState> emit) async {
+  // Future<void> _onUpdateAccount(
+  //   UpdateProfileEvent event,
+  //   Emitter<ProfileState> emit,
+  // ) async {
   //   emit(ProfileLoading());
-  //   final failureOrSuccess = await updateProfileUseCase(event.params);
+  //   final failureOrSuccess = await updateUserDetailsUsecase(
+  //     UpdateUserDetailsParams(user: event.params),
+  //   );
 
   //   failureOrSuccess.fold(
-  //     (failure) => emit(ProfileError(
-  //         message: _mapFailureToMessage(failure),
-  //         statusCode: failure.statusCode)),
+  //     (failure) => emit(
+  //       ProfileError(
+  //         message: mapFailureToMessage(failure),
+  //         statusCode: failure.statusCode,
+  //       ),
+  //     ),
   //     (user) => emit(ProfileUpdated(user: user)),
   //   );
   // }
 
-  // Future<void> _onUpdateImage(UpdateImageEvent event, Emitter<ProfileState> emit) async {
-  //   emit(ProfileLoading());
-  //   final failureOrSuccess = await updateImageUseCase(event.params);
+  Future<void> _onUpdateAccount(
+    UpdateProfileEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(ProfileLoading());
 
-  //   failureOrSuccess.fold(
-  //     (failure) => emit(ProfileError(
-  //         message: _mapFailureToMessage(failure),
-  //         statusCode: failure.statusCode)),
-  //     (user) => emit(ProfileImageUpdated(user: user)),
-  //   );
-  // }
+    String? newImageUrl;
 
-  String _mapFailureToMessage(Failure failure) {
-    switch (failure) {
-      case ServerFailure():
-        return 'Server Error: ${failure.message}';
-      case NetworkFailure():
-        return 'Network Error: ${failure.message}';
-      default:
-        return 'Unexpected Error';
+    // STEP 1 — Check if user selected a new photo
+    if (event.file != null && event.file!.path.isNotEmpty) {
+      final photoResult = await uploadPhotoUseCase(
+        UploadPhotoParams(file: event.file!),
+      );
+
+      // Handle upload error
+      final uploadResponse = photoResult.fold(
+        (failure) {
+          emit(
+            ProfileError(
+              message: mapFailureToMessage(failure),
+              statusCode: failure.statusCode,
+            ),
+          );
+          return null;
+        },
+        (url) => url, // url returned by API
+      );
+
+      final imageUrl = uploadResponse!.m2Chk20;
+
+      if (imageUrl == null) return; // stop if photo upload failed
+      newImageUrl = imageUrl;
     }
+
+    // // STEP 2 — Add image URL to user params if changed
+    // final updatedUser = event.params.copyWith(
+    //   m2Chk20: newImageUrl ?? event.params.m2Chk20,
+    // );
+
+    // STEP 3 — Update profile details
+    final failureOrSuccess = await updateUserDetailsUsecase(
+      UpdateUserDetailsParams(user: event.params),
+    );
+
+    failureOrSuccess.fold(
+      (failure) => emit(
+        ProfileError(
+          message: mapFailureToMessage(failure),
+          statusCode: failure.statusCode,
+        ),
+      ),
+      (user) => emit(ProfileUpdated(user: user)),
+    );
   }
 }

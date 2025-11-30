@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mediecom/core/utils/utils.dart';
 import 'package:mediecom/features/auth/domain/use_cases/verify_otp_usecase.dart';
+import 'package:mediecom/features/user/data/models/user_model.dart';
 import 'package:mediecom/features/user/domain/entities/user_entity.dart';
 
 part 'verify_otp_event.dart';

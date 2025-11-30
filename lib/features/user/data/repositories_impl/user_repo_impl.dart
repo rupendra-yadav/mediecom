@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:mediecom/core/common/error/app_exceptions.dart';
 import 'package:mediecom/core/common/error/app_failures.dart';
 import 'package:mediecom/features/notification/data/models/notification_model.dart';
 import 'package:mediecom/features/notification/domain/entities/notif_entity.dart';
 import 'package:mediecom/features/user/data/data_sources/user_remote_data_source.dart';
+import 'package:mediecom/features/user/data/models/user_model.dart';
 import 'package:mediecom/features/user/domain/entities/user_entity.dart';
 import 'package:mediecom/features/user/domain/repositories/user_repository.dart';
 
@@ -32,12 +35,9 @@ class UserRepoImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> updateProfile(
-    String userId,
-    Map<String, String> profileData,
-  ) async {
+  Future<Either<Failure, UserModel>> updateProfile(UserModel userModel) async {
     try {
-      final user = await remoteDataSource.updateProfile(userId, profileData);
+      final user = await remoteDataSource.updateProfile(userModel);
       return Right(user);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
@@ -54,12 +54,9 @@ class UserRepoImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> updatePhoto(
-    String userId,
-    String photoPath,
-  ) async {
+  Future<Either<Failure, UserEntity>> updatePhoto(File photoPath) async {
     try {
-      final user = await remoteDataSource.updatePhoto(userId, photoPath);
+      final user = await remoteDataSource.updatePhoto(photoPath);
       return Right(user);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message, statusCode: e.statusCode));

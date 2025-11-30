@@ -11,6 +11,8 @@ import 'package:mediecom/core/style/app_text_styles.dart';
 import 'package:mediecom/features/auth/presentation/auth_injection.dart';
 import 'package:mediecom/features/auth/presentation/bloc/verify_otp/verify_otp_bloc.dart';
 import 'package:mediecom/features/explore/presentation/pages/home_screen.dart';
+import 'package:mediecom/features/user/data/models/user_model.dart';
+import 'package:mediecom/features/user/presentation/pages/update_profile.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   static const path = '/otp-verification';
@@ -72,7 +74,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 SnackBar(
                   content: Text(
                     state.message,
-                    style: AppTextStyles.karala14w800.white,
+                    style: AppTextStyles.w800(14).white,
                   ),
                   backgroundColor: Colours.error,
                 ),
@@ -81,8 +83,18 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               log(state.user.toString());
               final cacheHelper = sl<CacheHelper>();
               cacheHelper.setIsLoggedIn(true);
-              // appLog("${cacheHelper.isLoggedIn()}");
-              context.push(HomeScreen.path);
+              cacheHelper.cacheUserId(state.user.m2Id ?? "");
+
+              final UserModel user = state.user;
+              cacheHelper.cacheUser(user);
+              Navigator.of(context, rootNavigator: true).pop();
+
+              if (state.user.m2Chk1 == null && state.user.m2Chk1!.isEmpty) {
+                context.go(UpdateProfileScreen.path, extra: state.user);
+              } else {
+                context.go(HomeScreen.path);
+              }
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   backgroundColor: Colours.success,
@@ -109,7 +121,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'OTP sent to ${widget.phoneNumber}',
+                  // 'OTP sent to ${widget.phoneNumber}',
+                  "OTP has been sent to your mobile number",
                   style: const TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 30),

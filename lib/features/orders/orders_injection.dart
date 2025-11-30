@@ -40,7 +40,4 @@ Future<void> initOrders() async {
   sl.registerLazySingleton<OrderRemoteDataSource>(
     () => OrderRemoteDataSourceImpl(client: sl()),
   );
-
-  // External
-  sl.registerLazySingleton(() => http.Client());
 }

@@ -7,6 +7,8 @@ abstract class ApiConstants {
       "https://www.subhlaxmimedical.com/myadmin/uploads/slider/";
   static const productBase =
       "https://www.subhlaxmimedical.com/myadmin/uploads/product/";
+  static const profileBase =
+      "https://www.subhlaxmimedical.com/myadmin/uploads/users/";
 
   // ================================================================
   // AUTHENTICATION

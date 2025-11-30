@@ -38,76 +38,84 @@ class CategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: 130.h,
-          color: Colours.white,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            child: Row(
-              children: cate.asMap().entries.map((entry) {
-                final index = entry.key;
-                final category = entry.value;
+    return SizedBox(
+      height: 100, // Adjust based on how tall you want each item
+      child: ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 16.w),
+        scrollDirection: Axis.horizontal,
+        itemCount: cate.length,
+        itemBuilder: (context, index) {
+          final category = cate[index];
 
-                return GestureDetector(
-                  onTap: () {
-                    context.push(SubcategoryPage.path);
-                  },
-                  child: Container(
-                    width: 80.w,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 8,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [getRandomColor(), Colours.white],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+          return TweenAnimationBuilder(
+            tween: Tween<double>(begin: 0, end: 1),
+            duration: Duration(milliseconds: 600 + (index * 80)),
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(30 * (1 - value), 0),
+                  child: child,
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 14),
+              child: GestureDetector(
+                onTap: () => context.push(SubcategoryPage.path),
+                child: Container(
+                  width: 90,
+                  // height: 100,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colours.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 5,
+                        offset: Offset(0, 2),
                       ),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(
-                          categoryIcons[index % categoryIcons.length],
-                          color: Colours.dark,
-                          size: 22,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          category.m1Name,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
-                );
-              }).toList(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        // padding: const EdgeInsets.all(14),
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: getRandomColor(),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          categoryIcons[index % categoryIcons.length],
+                          color: Colors.black,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        category.m1Name,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 }

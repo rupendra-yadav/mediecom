@@ -1,16 +1,24 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:mediecom/core/constants/api_constants.dart';
 import 'package:mediecom/core/extentions/text_style_extentions.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
+import 'package:mediecom/core/utils/utils.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_bloc.dart';
+import 'package:mediecom/features/cart/presentation/blocs/cart_event.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_state.dart';
+import 'package:mediecom/features/cart/presentation/pages/check_out_page.dart';
 import 'package:mediecom/features/cart/presentation/widgets/quantity_selector.dart';
+import 'package:mediecom/features/orders/presentation/bloc/orders_bloc.dart';
+import 'package:mediecom/features/orders/presentation/bloc/orders_event.dart';
+import 'package:mediecom/features/orders/presentation/bloc/orders_state.dart';
 
 import '../../../explore/domain/entities/product_entity.dart';
 
@@ -27,8 +35,6 @@ class _CartState extends State<Cart> {
   static const Color _cardBackground = Color(0xFFFFFFFF);
   static const Color _textColor = Color(0xFF212121);
   static const Color _subtextColor = Color(0xFF757575);
-  static const Color _accentColor = Color(0xFF1E88E5);
-  static const Color _iconColor = Color(0xFF616161);
   static const Color _redAccent = Color(0xFFE53935);
 
   final double deliveryFee = 3.50;
@@ -47,44 +53,107 @@ class _CartState extends State<Cart> {
 
   double get totalAmount => subtotal + deliveryFee;
 
+  // void onCheckoutButtonPressed(BuildContext context) {
+  //   final cartItems = context.read<CartBloc>().state.items;
+  //   appLog(
+  //     'Checkout pressed with ${cartItems.length} items. Total Amount: $totalAmount',
+  //   );
+
+  //   // Join all product IDs into one comma-separated string
+  //   final productIds = cartItems
+  //       .map((item) => item.M1_CODE ?? '')
+  //       .where((code) => code.isNotEmpty)
+  //       .join(',');
+
+  //   // Join all quantities into one comma-separated string
+  //   final quantities = cartItems
+  //       .map((item) => (item.quantity ?? 1).toString())
+  //       .join(',');
+
+  //   appLog(productIds.toString());
+  //   appLog(quantities.toString());
+  //   final Map<String, dynamic> orderData = {
+  //     'user_id': '4',
+  //     'F4_PARTY': productIds.toString(),
+  //     'F4_QTY': quantities.toLowerCase(),
+  //     'grand_total': totalAmount.toString(),
+  //   };
+  //   context.read<OrdersBloc>().add(InsertOrderEvent(orderData: orderData));
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _primaryLight,
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: BlocBuilder<CartBloc, CartState>(
-                builder: (context, state) {
-                  final data = state.items;
-                  if (data.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'Your cart is empty',
-                        style: AppTextStyles.karala16w600.dark,
-                      ),
+      body: BlocListener<OrdersBloc, OrdersState>(
+        listener: (context, state) {
+          if (state is OrderInsertSuccess) {
+            // Clear the cart upon successful order insertion
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Order placed successfully!'),
+                backgroundColor: Colours.success,
+                behavior: SnackBarBehavior.floating,
+                duration: Duration(seconds: 2),
+              ),
+            );
+            context.read<CartBloc>().add(ClearCart());
+          }
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: BlocBuilder<CartBloc, CartState>(
+                  builder: (context, state) {
+                    final data = state.items;
+                    if (data.isEmpty) {
+                      return Center(
+                        child: Column(
+                          children: [
+                            SizedBox(height: 30),
+
+                            Image.asset(
+                              "assets/images/img_empty_cart.png",
+                              height: 150,
+                            ),
+
+                            SizedBox(height: 30),
+
+                            Text(
+                              'Your cart is empty',
+                              style: AppTextStyles.w600(16).dark,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return ListView.separated(
+                      itemBuilder: (context, index) {
+                        final item = data[index];
+                        return _buildCartItem(context, item)
+                            .animate(delay: Duration(milliseconds: 120 * index))
+                            .fadeIn(duration: Duration(milliseconds: 300))
+                            .slideX(
+                              begin: 0.3,
+                              duration: Duration(milliseconds: 300),
+                            );
+                      },
+                      itemCount: data.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      separatorBuilder: (BuildContext context, int index) {
+                        return SizedBox(height: 12.h);
+                      },
                     );
-                  }
-                  return ListView.separated(
-                    itemBuilder: (context, index) {
-                      final item = data[index];
-                      return _buildCartItem(context, item);
-                    },
-                    itemCount: data.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    separatorBuilder: (BuildContext context, int index) {
-                      return SizedBox(height: 12.h);
-                    },
-                  );
-                },
+                  },
+                ),
               ),
             ),
-          ),
-          _buildCheckoutButton(context),
-        ],
+            _buildCheckoutButton(context),
+          ],
+        ),
       ),
     );
   }
@@ -92,96 +161,117 @@ class _CartState extends State<Cart> {
   Widget _buildCartItem(BuildContext context, ProductEntity item) {
     return StatefulBuilder(
       builder: (context, setStateInner) {
-        return Container(
-          padding: const EdgeInsets.all(12.0),
-          decoration: BoxDecoration(
-            color: _cardBackground,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 1,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  item.image.isNotEmpty
-                      ? "${ApiConstants.productBase}${item.image[0]}"
-                      : "",
-
-                  width: 70,
-                  height: 70,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: 70,
-                    height: 70,
-                    color: Colors.grey,
-                    child: Icon(Iconsax.image, size: 30.sp, color: Colors.grey),
+        return Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: _cardBackground,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.M1_NAME ?? 'Unknown Product',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: _textColor,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      item.image.isNotEmpty
+                          ? "${ApiConstants.productBase}${item.image[0]}"
+                          : "",
+
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 70,
+                        height: 70,
+                        color: Colors.grey,
+                        child: Icon(
+                          Iconsax.image,
+                          size: 30.sp,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      item.M1_CST ?? 'Unknown Pharmacy',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: _subtextColor,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Rs ${item.M1_AMT1}/-',
+                          item.M1_NAME ?? 'Unknown Product',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Colours.success,
+                            color: _textColor,
                           ),
                         ),
+                        const SizedBox(height: 4),
+                        Text(
+                          item.M1_CST ?? 'Unknown Pharmacy',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: _subtextColor,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Rs ${item.M1_AMT1}/-',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colours.success,
+                              ),
+                            ),
 
-                        QuantitySelector(
-                          initialQuantity: item.quantity,
-                          minQuantity: 1,
-                          maxQuantity: 10,
-                          onQuantityChanged: (newQty) {
-                            setStateInner(() {
-                              item.quantity = newQty;
+                            QuantitySelector(
+                              initialQuantity: item.quantity,
+                              minQuantity: 1,
+                              maxQuantity: 10,
+                              onQuantityChanged: (newQty) {
+                                setStateInner(() {
+                                  item.quantity = newQty;
 
-                              // ---- FIXED ----
-                              if (mounted) setState(() {});
-                              // --------------
-                            });
-                          },
+                                  // ---- FIXED ----
+                                  if (mounted) setState(() {});
+                                  // --------------
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+
+            Positioned(
+              top: 0,
+              right: 0,
+              child: IconButton(
+                icon: const Icon(Iconsax.trash, color: _redAccent),
+                onPressed: () {
+                  context.read<CartBloc>().add(
+                    RemoveFromCart(productCode: item.M1_CODE ?? ''),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
@@ -253,19 +343,22 @@ class _CartState extends State<Cart> {
                 SizedBox(width: 3.w),
                 Text(
                   'Total Amt: ${totalAmount.toStringAsFixed(2)}/-',
-                  style: AppTextStyles.karala14w800.white,
+                  style: AppTextStyles.w800(14).white,
                 ),
-                Container(
-                  width: 150.w,
-                  height: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "Check Out",
-                      style: AppTextStyles.karala14w800.dark,
+                InkWell(
+                  onTap: () => context.push(PaymentMethodPage.path),
+                  child: Container(
+                    width: 150.w,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Check Out",
+                        style: AppTextStyles.w800(14).dark,
+                      ),
                     ),
                   ),
                 ),

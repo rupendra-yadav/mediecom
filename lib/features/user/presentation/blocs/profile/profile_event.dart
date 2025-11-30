@@ -16,14 +16,15 @@ class GetProfileEvent extends ProfileEvent {
   List<Object?> get props => [userId];
 }
 
-// class UpdateProfileEvent extends ProfileEvent {
-//   final UpdateProfileParams params;
+class UpdateProfileEvent extends ProfileEvent {
+  final File? file;
+  final UserModel params;
 
-//   const UpdateProfileEvent({required this.params});
+  const UpdateProfileEvent({required this.params, required this.file});
 
-//   @override
-//   List<Object?> get props => [params];
-// }
+  @override
+  List<Object?> get props => [params];
+}
 
 // class UpdateImageEvent extends ProfileEvent {
 //   final UpdateImageParams params;

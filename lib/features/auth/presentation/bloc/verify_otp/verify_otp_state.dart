@@ -12,7 +12,7 @@ class VerifyOtpInitial extends VerifyOtpState {}
 class VerifyOtpLoading extends VerifyOtpState {}
 
 class VerifyOtpSuccess extends VerifyOtpState {
-  final UserEntity user;
+  final UserModel user;
 
   const VerifyOtpSuccess({required this.user});
 

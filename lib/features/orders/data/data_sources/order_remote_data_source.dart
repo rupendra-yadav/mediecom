@@ -178,6 +178,8 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
         );
       }
     } catch (e) {
+      appLog("msg" + e.toString());
+
       throw ServerException(message: e.toString(), statusCode: 500);
     }
   }

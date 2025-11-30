@@ -26,6 +26,7 @@ class ProductCard extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border.all(color: Colors.black38.o10),
             borderRadius: BorderRadius.circular(12),
+            color: Colours.white,
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -35,22 +36,29 @@ class ProductCard extends StatelessWidget {
                 children: [
                   Hero(
                     tag: "product_$index",
-                    child: CachedNetworkImage(
-                      height: 100.h,
-                      width: double.infinity,
-                      imageUrl: data.image.isNotEmpty
-                          ? "${ApiConstants.productBase}${data.image[0]}"
-                          : "",
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
 
-                      fit: BoxFit.fill,
-                      errorWidget: (context, url, error) => Container(
-                        height: 100.h,
-                        width: double.infinity,
-                        color: Colors.grey,
-                        child: Icon(
-                          Iconsax.image,
-                          size: 40.sp,
-                          color: Colors.grey,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: CachedNetworkImage(
+                          height: 133.h,
+                          width: double.infinity,
+                          imageUrl: data.image.isNotEmpty
+                              ? "${data.image[0]}"
+                              : "",
+
+                          fit: BoxFit.fill,
+                          errorWidget: (context, url, error) => Container(
+                            height: 100.h,
+                            width: double.infinity,
+                            color: Colors.grey,
+                            child: Icon(
+                              Iconsax.image,
+                              size: 40.sp,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -92,21 +100,38 @@ class ProductCard extends StatelessWidget {
                           ),
                         ),
 
-                        InkWell(
-                          onTap: () {},
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Iconsax.heart, size: 15),
-                          ),
-                        ),
+                        // InkWell(
+                        //   onTap: () {},
+                        //   borderRadius: BorderRadius.circular(12),
+                        //   child: Container(
+                        //     padding: const EdgeInsets.all(5),
+                        //     decoration: const BoxDecoration(
+                        //       color: Colors.white,
+                        //       shape: BoxShape.circle,
+                        //     ),
+                        //     child: const Icon(Iconsax.heart, size: 15),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
+
+                  // Positioned(
+                  //   bottom: 4,
+                  //   right: 4,
+                  //   child: Container(
+                  //     height: 30,
+                  //     width: 50,
+                  //     decoration: BoxDecoration(
+                  //       color: Colours.white,
+                  //       borderRadius: BorderRadius.only(
+                  //         topLeft: Radius.circular(8),
+                  //         bottomLeft: Radius.circular(-8),
+                  //       ),
+                  //     ),
+                  //     child: Text("data"),
+                  //   ),
+                  // ),
                 ],
               ),
               Padding(
@@ -118,19 +143,38 @@ class ProductCard extends StatelessWidget {
                       data.M1_NAME ?? "Medicine Name",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.karala12w800,
+                      style: AppTextStyles.w800(14),
                     ),
                     SizedBox(height: 4.h),
                     Text(
                       data.M1_CST ?? "Manufacturer",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.karala12w300,
+                      style: AppTextStyles.w500(12),
                     ),
                     SizedBox(height: 4.h),
                     Text(
-                      "Rs ${data.M1_AMT1 ?? '0'}/-",
-                      style: AppTextStyles.karala14w800.green,
+                      "Rs ${data.M1_AMT1}/-",
+                      style: AppTextStyles.w500(
+                        10,
+                      ).grey.copyWith(decoration: TextDecoration.lineThrough),
+                    ),
+                    SizedBox(height: 4.h),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(
+                          0xFFE6F7EC,
+                        ), // soft mint green / matches that “discount tag” style
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "Rs ${data.M1_AMT2 ?? '0'}/-",
+                        style: AppTextStyles.w800(14).green,
+                      ),
                     ),
                   ],
                 ),
@@ -139,8 +183,8 @@ class ProductCard extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 4,
-          right: 4,
+          bottom: 7,
+          right: 7,
           child: InkWell(
             onTap: () {
               ctx.read<CartBloc>().add(AddToCart(item: data));

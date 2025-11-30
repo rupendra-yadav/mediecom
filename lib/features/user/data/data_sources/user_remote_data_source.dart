@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/core/common/error/app_exceptions.dart';
 import 'package:mediecom/core/utils/utils.dart';
+import 'package:mediecom/features/auth/presentation/auth_injection.dart';
 
 import '../../../../core/constants/api_constants.dart';
 
@@ -11,11 +14,8 @@ import '../../../user/data/models/user_model.dart';
 
 abstract class UserRemoteDataSource {
   Future<UserModel> fetchUserDetails(String userId);
-  Future<UserModel> updateProfile(
-    String userId,
-    Map<String, String> profileData,
-  );
-  Future<UserModel> updatePhoto(String userId, String photoPath);
+  Future<UserModel> updateProfile(UserModel user);
+  Future<UserModel> updatePhoto(File photoPath);
   Future<void> updateFcm(String userId, String fcmToken);
   Future<List<Map<String, dynamic>>> getNotifications(String userId);
 }
@@ -62,35 +62,48 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   }
 
   @override
-  Future<UserModel> updateProfile(
-    String userId,
-    Map<String, String> profileData,
-  ) async {
+  Future<UserModel> updateProfile(UserModel user) async {
+    final cacheHelper = sl<CacheHelper>();
     try {
-      final body = {'user_id': userId, ...profileData};
-      final response = await client.post(
+      final body = {
+        "user_id": cacheHelper.getUserId() ?? "",
+        "user_name": user.m2Chk1 ?? "",
+        "user_mobile": user.m2Chk2 ?? "",
+        "user_email": user.m2Chk3 ?? "",
+        "user_dob": user.m2Chk5 ?? "",
+        "user_gender": user.m2Chk6 ?? "",
+        "user_address": user.m2Chk7 ?? "",
+        "user_state": user.m2Chk8 ?? "",
+        "user_city": user.m2Chk9 ?? "",
+      };
+      final profileResponse = await client.post(
         Uri.parse(ApiConstants.updateProfile),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: body,
       );
 
-      _logApiCall('updateProfile', response);
+      // _logApiCall("update_profile:RequestBody", body.to);
+      appLog(" update_profile:RequestBody $body");
+      _logApiCall('updateProfile:ResponseBody', profileResponse);
+      appLog(" update_photo:RequestBody $profileResponse");
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = json.decode(response.body);
+      if (profileResponse.statusCode == 200) {
+        final Map<String, dynamic> responseBody = json.decode(
+          profileResponse.body,
+        );
         if (responseBody['response'] == 'success' &&
             responseBody.containsKey('data')) {
           return UserModel.fromJson(responseBody['data'][0]);
         } else {
           throw ServerException(
             message: responseBody['message'] ?? 'Failed to update profile',
-            statusCode: response.statusCode,
+            statusCode: profileResponse.statusCode,
           );
         }
       } else {
         throw ServerException(
           message: 'Server error',
-          statusCode: response.statusCode,
+          statusCode: profileResponse.statusCode,
         );
       }
     } on http.ClientException {
@@ -102,12 +115,16 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   }
 
   @override
-  Future<UserModel> updatePhoto(String userId, String photoPath) async {
+  Future<UserModel> updatePhoto(File photoPath) async {
     try {
+      final path = photoPath.path;
+      final cacheHelper = sl<CacheHelper>();
+      final String userId = cacheHelper.getUserId() ?? "";
+
       final request =
           http.MultipartRequest('POST', Uri.parse(ApiConstants.updatePhoto))
             ..fields['user_id'] = userId
-            ..files.add(await http.MultipartFile.fromPath('photo', photoPath));
+            ..files.add(await http.MultipartFile.fromPath('user_pic', path));
 
       final streamedResponse = await client.send(request);
       final response = await http.Response.fromStream(streamedResponse);

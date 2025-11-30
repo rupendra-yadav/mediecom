@@ -24,12 +24,12 @@ class FeatureComingSoonWidget extends StatelessWidget {
               height: 200.r,
             ),
             SizedBox(height: 30.h),
-            Text('Coming Soon!', style: AppTextStyles.karala24w800),
+            Text('Coming Soon!', style: AppTextStyles.w800(24)),
             SizedBox(height: 12.h),
             Text(
               'We are working hard to bring this feature to you. Please check back later.',
               textAlign: TextAlign.center,
-              style: AppTextStyles.karala12w300,
+              style: AppTextStyles.w300(12),
             ),
             if (showBackButton) ...[
               SizedBox(height: 40.h),
@@ -46,7 +46,7 @@ class FeatureComingSoonWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                 ),
-                child: Text('Go Back', style: AppTextStyles.karala16w600),
+                child: Text('Go Back', style: AppTextStyles.w600(16)),
               ),
             ],
           ],

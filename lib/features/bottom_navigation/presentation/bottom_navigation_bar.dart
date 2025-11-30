@@ -1,11 +1,15 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/core/constants/media_constants.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
+import 'package:mediecom/features/auth/presentation/auth_injection.dart';
 import 'package:mediecom/features/cart/presentation/pages/cart.dart';
 import 'package:mediecom/features/explore/presentation/pages/home_screen.dart';
 import 'package:mediecom/features/explore/presentation/widgets/gradient_appBar.dart';
@@ -21,16 +25,22 @@ class NavigationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final int selectedIndex = _calculateSelectedIndex(context);
+    final cacheHelper = sl<CacheHelper>();
+    final user = cacheHelper.getUser();
+
+    final String userAddress = user!.m2Chk7 ?? "address";
 
     return Scaffold(
-      appBar: GradientAppBar(
-        name: _getTitle(context),
-        address: "123 MG Road, Bengaluru",
-        // onNotificationTap: () {
-        //   // Handle notification click
-        // },
-        isUserName: _calculateSelectedIndex(context) == 0,
-      ),
+      appBar: _calculateSelectedIndex(context) != 0
+          ? GradientAppBar(
+              name: _getTitle(context),
+              address: userAddress,
+              // onNotificationTap: () {
+              //   // Handle notification click
+              // },
+              isUserName: _calculateSelectedIndex(context) == 0,
+            )
+          : null,
       // appBar: AppBar(
       //   backgroundColor: Colours.white,
       //   title: Image.asset(AppMedia.imgLogo1, height: 40, width: 40),
@@ -95,7 +105,7 @@ class NavigationScreen extends StatelessWidget {
                   ),
                   Text(
                     "Home",
-                    style: AppTextStyles.karala12w500.copyWith(
+                    style: AppTextStyles.w700(12).copyWith(
                       color: selectedIndex == 0
                           ? Colours.primaryColor
                           : Colours.neutralGray,
@@ -118,7 +128,7 @@ class NavigationScreen extends StatelessWidget {
                   ),
                   Text(
                     "Cart",
-                    style: AppTextStyles.karala12w800.copyWith(
+                    style: AppTextStyles.w700(12).copyWith(
                       color: selectedIndex == 1
                           ? Colours.primaryColor
                           : Colours.neutralGray,
@@ -142,7 +152,7 @@ class NavigationScreen extends StatelessWidget {
                   ),
                   Text(
                     "Orders",
-                    style: AppTextStyles.karala12w800.copyWith(
+                    style: AppTextStyles.w700(12).copyWith(
                       color: selectedIndex == 2
                           ? Colours.primaryColor
                           : Colours.neutralGray,
@@ -165,7 +175,7 @@ class NavigationScreen extends StatelessWidget {
                   ),
                   Text(
                     "Profile",
-                    style: AppTextStyles.karala12w800.copyWith(
+                    style: AppTextStyles.w700(12).copyWith(
                       color: selectedIndex == 3
                           ? Colours.primaryColor
                           : Colours.neutralGray,
@@ -221,10 +231,12 @@ void _onItemTapped(int index, BuildContext context) {
 
 String _getTitle(BuildContext context) {
   final int index = _calculateSelectedIndex(context);
+  final cacheHelper = sl<CacheHelper>();
+  final user = cacheHelper.getUser();
 
   if (index == 0) {
     // Home tab selected, show greeting based on time of day
-    return "User";
+    return user!.m2Chk1 ?? "UserName";
   } else if (index == 1) {
     return "Cart";
   } else if (index == 2) {

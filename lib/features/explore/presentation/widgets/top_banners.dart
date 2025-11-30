@@ -77,26 +77,26 @@ class _TopBannerCarouselState extends State<TopBannerCarousel> {
 
         const SizedBox(height: 13),
 
-        // // Dots Indicator
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   children: widget.imageUrls.asMap().entries.map((entry) {
-        //     return GestureDetector(
-        //       onTap: () => _controller.animateToPage(entry.key),
-        //       child: Container(
-        //         width: _current == entry.key ? 20.0 : 8.0,
-        //         height: 8.0,
-        //         margin: const EdgeInsets.symmetric(horizontal: 4.0),
-        //         decoration: BoxDecoration(
-        //           borderRadius: BorderRadius.circular(4),
-        //           color: _current == entry.key
-        //               ? Theme.of(context).primaryColor
-        //               : Colors.grey[400],
-        //         ),
-        //       ),
-        //     );
-        //   }).toList(),
-        // ),
+        // Dots Indicator
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: widget.imageUrls.asMap().entries.map((entry) {
+            return GestureDetector(
+              onTap: () => _controller.animateToPage(entry.key),
+              child: Container(
+                width: _current == entry.key ? 20.0 : 8.0,
+                height: 8.0,
+                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: _current == entry.key
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey[400],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ],
     );
   }

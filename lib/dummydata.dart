@@ -1,3 +1,70 @@
+//  "M2_Id": "4",
+//             "M2_TYPE": null, //CUSTOMER
+//             "M2_TYPE1": null,
+//             "M2_TYPE2": null,
+//             "M2_TYPE3": null,
+//             "M2_PRIM": null,
+//             "M2_ALLREP": null,
+//             "M2_FYDATE": null,
+//             "M2_ENDATE": null,
+//             "M2_DATE": null,
+//             "M2_CHK1":  NAME,
+//             "M2_CHK2": "9575651447",
+//             "M2_CHK3": EMAIL,
+//             "M2_CHK4": ,
+//             "M2_CHK5": DOB,
+//             "M2_CHK6": GENDER,
+//             "M2_CHK7": ADDDRESS,
+//             "M2_CHK8": STATE,
+//             "M2_CHK9": CITY,
+//             "M2_CHK10": PINCODE,
+//             "M2_CHK11": ,
+//             "M2_CHK12": null,
+//             "M2_CHK13": null,
+//             "M2_CHK14": null,
+//             "M2_CHK15": null,
+//             "M2_CHK16": null,
+//             "M2_CHK17": null,
+//             "M2_CHK18": null,
+//             "M2_CHK19": null,
+//             "M2_CHK20": PHOTO,
+//             "M2_CHK21": FCM,
+//             "M2_CHK22": "932574",
+//             "M2_CHK23": null,
+//             "M2_CHK24": null,
+//             "M2_CHK25": null,
+//             "M2_BT": "Active",
+//             "M2_DATE1": "2025-10-28 14:56:58", //ADDED ON
+//             "M2_DATE2": "0000-00-00 00:00:00", //UPDATED ON
+//             "M2_DATE3": "0000-00-00 00:00:00",
+//             "M2_ADD1": "0",
+//             "M2_ADD2": "0"
+
+//  {
+//             "M1_CODE": "30",
+//             "M1_NAME": "Dettol liquid",
+//             "M1_LST": "TW516",
+//             "M1_CST": "Liguid",
+//             "M1_IT": "3706",
+//             "M1_VAL": "125",
+//             "M1_AMT1": "80.52",
+//             "M1_AMT2": "75",
+//             "M1_DT3": "2025-08-08",
+//             "M1_DT4": "2029-10-01",
+//             "M1_BT": "Active",
+//             "M1_ADD1": "",
+//             "M1_ADD2": "",
+//             "M1_DT1": "2025-10-29",
+//             "M1_GROUP": "2",
+//             "M1_PRINT": "",
+//             "category_name": "Personal care",
+//             "subcategory_name": null,
+//             "image": [
+//                 "53db77a3865783773ca883470d64f017.jpg",
+//                 "1d86768f0fa2c18d04d0b15b787a1641.jpg"
+//             ]
+//         },
+
 final List<Map<String, dynamic>> sampleMedicins = [
   {
     'drugName': 'Atorvastatin',
@@ -1347,3 +1414,26 @@ final List<Map<String, dynamic>> sampleMedicins = [
     'countInStock': 100,
   },
 ];
+
+
+// INSERT INTO m12526 (M1_TYPE, M1_NAME, M1_LNAME, `M1_GROUP`, `M1_ADD1`, `M1_ADD2`, `M1_LST`, `M1_CST`, `M1_DC1`, `M1_BT`, M1_DT1, M1_DT2, M1_VAL, M1_OP, M1_AMT1, M1_AMT2)
+// VALUES
+// ('Product', 'Amoxicillin', 'amoxicillin', '2', 'value5', 'Diarrhea, rash, nausea.', 'Antibiotic used to treat bacterial infections.', 'value8', 'Oral', 'https://5.imimg.com/data5/SELLER/Default/2023/8/332350358/SI/JT/VF/98283251/amoxicillin-drugs3.jpg', 'Active', 'DateTime.now', '100', 'ml', '62', '72'),
+// ('value1', 'value2', 'value3', 'value4', 'value5', 'value6', 'value7', 'value8', 'value9', 'value10', 'value11', 'value12', 'value13', 'value14', 'value15', 'value16'),
+// ('value1', 'value2', 'value3', 'value4', 'value5', 'value6', 'value7', 'value8', 'value9', 'value10', 'value11', 'value12', 'value13', 'value14', 'value15', 'value16');
+
+
+
+// M1_TYPE: Product
+// M1_NAME = 'drugName': 'Amoxicillin',
+// M1_LNAME =  'manufacturer': 'GlaxoSmithKline plc',
+// M1_DC1   'image':
+//         'https://5.imimg.com/data5/SELLER/Default/2023/8/332350358/SI/JT/VF/98283251/amoxicillin-drugs3.jpg',
+// M1_ADD1  = 'description': 'Antibiotic used to treat bacterial infections.',
+// M1Cst =   'consumeType': 'Oral',
+// M1_DT2=    'expirydate': '2024-12-01',
+// M1_AMT1=    'price': 62,
+// M1_ADD2 =  'sideEffects': 'Diarrhea, rash, nausea.',
+// M1_TXT1  = 'disclaimer': 'Complete the full course as prescribed.',
+// M1_GROUP  =   'category': 'antibiotics',
+// M1_VAL  =  'countInStock': 100,

@@ -21,7 +21,7 @@ class ProfileLoaded extends ProfileState {
 }
 
 class ProfileUpdated extends ProfileState {
-  final UserEntity user;
+  final UserModel user;
 
   const ProfileUpdated({required this.user});
 
