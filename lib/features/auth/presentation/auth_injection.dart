@@ -9,37 +9,44 @@ import 'package:mediecom/features/auth/presentation/bloc/send_otp/send_otp_bloc.
 import 'package:mediecom/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
 import 'package:mediecom/features/auth/presentation/bloc/verify_otp/verify_otp_bloc.dart';
 
-final sl = GetIt.instance;
+import '../../../injection_container.dart';
 
 void initAuth() {
-  /// Auth Use Cases Injection
+  /// Auth Use Cases
+  if (!sl.isRegistered<LoginUseCase>()) {
+    sl.registerLazySingleton<LoginUseCase>(
+      () => LoginUseCase(repository: sl()),
+    );
+  }
 
-  sl.registerLazySingleton<LoginUseCase>(
-    () => LoginUseCase(repository: sl.call()),
-  );
+  if (!sl.isRegistered<SendOtpUseCase>()) {
+    sl.registerLazySingleton<SendOtpUseCase>(
+      () => SendOtpUseCase(repository: sl()),
+    );
+  }
 
-  sl.registerLazySingleton<SendOtpUseCase>(
-    () => SendOtpUseCase(repository: sl.call()),
-  );
+  if (!sl.isRegistered<VerifyOtpUseCase>()) {
+    sl.registerLazySingleton<VerifyOtpUseCase>(
+      () => VerifyOtpUseCase(repository: sl()),
+    );
+  }
 
-  sl.registerLazySingleton<VerifyOtpUseCase>(
-    () => VerifyOtpUseCase(repository: sl.call()),
-  );
+  /// Auth Repository
+  if (!sl.isRegistered<AuthRepository>()) {
+    sl.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(remoteDataSource: sl()),
+    );
+  }
 
-  /// Auth Repository Injection
-  sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(remoteDataSource: sl.call()),
-  );
+  /// Auth Remote Data Source
+  if (!sl.isRegistered<AuthRemoteDataSource>()) {
+    sl.registerLazySingleton<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(client: sl()),
+    );
+  }
 
-  /// Auth Data sources Injection
-  sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(client: sl.call()),
-  );
-
-  /// Auth  Bloc Injection
+  /// Blocs (Factory — no need for isRegistered check because factory always creates new instances)
   sl.registerFactory(() => SignInBloc(loginUseCase: sl()));
-
   sl.registerFactory(() => SendOtpBloc(sendOtpUseCase: sl()));
-
   sl.registerFactory(() => VerifyOtpBloc(verifyOtpUseCase: sl()));
 }

@@ -86,7 +86,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     final result = await insertOrder(event.orderData);
     result.fold(
       (failure) => emit(OrdersFailure(failure.message)),
-      (_) => emit(OrderInsertSuccess()),
+      (orderId) => emit(OrderInsertSuccess(orderId)),
     );
   }
 }

@@ -16,6 +16,8 @@ import 'package:mediecom/features/explore/presentation/widgets/gradient_appBar.d
 import 'package:mediecom/features/orders/presentation/pages/orders.dart';
 import 'package:mediecom/features/user/presentation/pages/profile.dart';
 
+import '../../../injection_container.dart';
+
 class NavigationScreen extends StatelessWidget {
   const NavigationScreen({super.key, required this.child});
 
@@ -31,54 +33,6 @@ class NavigationScreen extends StatelessWidget {
     final String userAddress = user!.m2Chk7 ?? "address";
 
     return Scaffold(
-      appBar: _calculateSelectedIndex(context) != 0
-          ? GradientAppBar(
-              name: _getTitle(context),
-              address: userAddress,
-              // onNotificationTap: () {
-              //   // Handle notification click
-              // },
-              isUserName: _calculateSelectedIndex(context) == 0,
-            )
-          : null,
-      // appBar: AppBar(
-      //   backgroundColor: Colours.white,
-      //   title: Image.asset(AppMedia.imgLogo1, height: 40, width: 40),
-      //   elevation: 0,
-      //   scrolledUnderElevation: 0,
-      //   actions: [
-      //     Container(
-      //       width: 50,
-      //       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      //       decoration: BoxDecoration(
-      //         borderRadius: BorderRadius.circular(16),
-      //         border: Border.all(color: Colors.grey.shade300, width: 1.5),
-      //       ),
-      //       child: const Icon(
-      //         Icons.emoji_emotions_outlined,
-      //         size: 18,
-      //         color: Colors.orange,
-      //       ),
-      //     ),
-
-      //     SizedBox(width: 10),
-      //     Container(
-      //       width: 50,
-      //       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      //       decoration: BoxDecoration(
-      //         borderRadius: BorderRadius.circular(16),
-      //         border: Border.all(color: Colors.grey.shade300, width: 1.5),
-      //       ),
-      //       child: const Icon(
-      //         Icons.local_fire_department,
-      //         size: 18,
-      //         color: Colors.red,
-      //       ),
-      //     ),
-      //     SizedBox(width: 10),
-      //   ],
-      // ),
-      // extendBody: true,
       body: child,
 
       bottomNavigationBar: BottomAppBar(

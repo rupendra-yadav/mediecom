@@ -48,6 +48,11 @@ class ProfileImageUpdated extends ProfileState {
   List<Object> get props => [user];
 }
 
-// class ProfileImageRemoved extends ProfileState {
-//
-// }
+class PrescriptionSuccess extends ProfileState {
+  final String prescriptionId;
+
+  const PrescriptionSuccess({required this.prescriptionId});
+
+  @override
+  List<Object> get props => [prescriptionId];
+}

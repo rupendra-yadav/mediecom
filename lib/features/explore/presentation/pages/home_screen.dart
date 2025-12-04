@@ -1,25 +1,41 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mediecom/core/common/app/cache_helper.dart';
+import 'package:mediecom/core/common/singletons/cache.dart';
 import 'package:mediecom/core/common/widgets/safe_lottie_loader.dart';
 import 'package:mediecom/core/constants/media_constants.dart';
 import 'package:mediecom/core/extentions/text_style_extentions.dart';
 import 'package:mediecom/core/services/routes/arguments/product_details.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
+import 'package:mediecom/core/utils/utils.dart';
+import 'package:mediecom/features/cart/presentation/blocs/cart_bloc.dart';
+import 'package:mediecom/features/cart/presentation/blocs/cart_state.dart';
+import 'package:mediecom/features/cart/presentation/pages/cart.dart';
+import 'package:mediecom/features/explore/domain/entities/product_entity.dart';
+import 'package:mediecom/features/explore/presentation/bloc/features/features_bloc.dart';
 import 'package:mediecom/features/explore/presentation/bloc/product_bloc.dart';
+import 'package:mediecom/features/explore/presentation/bloc/search/search_bloc.dart';
 import 'package:mediecom/features/explore/presentation/pages/add_prescriptions_page.dart';
-import 'package:mediecom/features/explore/presentation/widgets/category_shimmers.dart';
-import 'package:mediecom/features/explore/presentation/widgets/top_banner_shimmer.dart';
 import 'package:mediecom/features/explore/presentation/pages/product_details.dart';
-import 'package:mediecom/features/explore/presentation/widgets/categories.dart';
+import 'package:mediecom/features/explore/presentation/widgets/category_shimmers.dart';
+import 'package:mediecom/features/explore/presentation/widgets/featured_widget.dart';
+import 'package:mediecom/features/explore/presentation/widgets/floating_button.dart';
 import 'package:mediecom/features/explore/presentation/widgets/products.dart';
+import 'package:mediecom/features/explore/presentation/widgets/top_banner_shimmer.dart';
 import 'package:mediecom/features/explore/presentation/widgets/top_banners.dart';
 import 'package:mediecom/features/master/presentation/blocs/banner/banner_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/category/category_bloc.dart';
+import 'package:mediecom/features/notification/presentation/pages/notification.dart';
+import 'package:mediecom/features/user/data/models/user_model.dart';
+import 'package:mediecom/injection_container.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   static const path = '/home-screen';
@@ -33,24 +49,30 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   bool _isSearching = false;
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     context.read<BannerBloc>().add(FetchBannerEvent());
+    context.read<FeaturesBloc>().add(FetchFeaturesEvent());
     context.read<CategoryBloc>().add(FetchCategoryEvent());
     context.read<ProductBloc>().add(FetchProducts());
 
-    // Listen to search controller changes
     _searchController.addListener(() {
       setState(() {
         _isSearching = _searchController.text.isNotEmpty;
       });
 
-      // TODO: Add your search bloc event here when ready
-      // if (_searchController.text.isNotEmpty) {
-      //   context.read<SearchBloc>().add(SearchProducts(_searchController.text));
-      // }
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+      _debounce = Timer(const Duration(milliseconds: 500), () {
+        final query = _searchController.text;
+
+        if (query.isNotEmpty) {
+          context.read<SearchBloc>().add(PerformSearchEvent(query: query));
+        }
+      });
     });
   }
 
@@ -59,11 +81,12 @@ class _HomeScreenState extends State<HomeScreen> {
     _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
+    _debounce?.cancel();
   }
 
   XFile? _selectedImage;
 
-  Future<dynamic> _onCallTapped() {
+  Future<dynamic> onCallTapped() {
     return showModalBottomSheet(
       context: context,
       backgroundColor: Colours.white,
@@ -71,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        final userMobile = "9303726071";
+        final userMobile = "7000980233";
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -104,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: const Text("Call Us"),
                 onTap: () {
                   // Launch dialer
-                  // _launchDialer("9019008100");
+                  launchDialer(userMobile);
                 },
               ),
 
@@ -117,7 +140,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 title: const Text("Chat on WhatsApp"),
                 onTap: () async {
-                  // _openWhatsApp("+919303726071", "I have a query regrading...");
+                  openWhatsApp(
+                    "+91 $userMobile",
+                    "I have a query regarding...",
+                  );
                 },
               ),
 
@@ -126,12 +152,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 leading: const Icon(Icons.email, color: Colors.blue),
                 title: const Text("Email Us"),
                 onTap: () {
-                  final Uri emailUri = Uri(
-                    scheme: 'mailto',
-                    path: 'helpdesk@omegafinancial.co.in',
-                    query: 'subject=App%20Support%20Request',
+                  launchEmail(
+                    "shubhlaxmi@gmail.com",
+                    "App%20Support%20Request",
                   );
-                  // launchUrl(emailUri);
                 },
               ),
             ],
@@ -142,9 +166,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAppBar() {
-    // You'll need to provide these values or get them from your state management
-    final String name = "User"; // Replace with actual user name
-    final String address = "Your Address"; // Replace with actual address
+    final cacheHelper = sl<CacheHelper>();
+    final user = cacheHelper.getUser();
+    final name = user?.m2Chk1 ?? "User";
+    final address = user?.m2Chk7 ?? "No Address Available";
+
+    final fullAddress = cacheHelper.getFullAddress();
+
+    // final prefs = await SharedPreferences.getInstance();
 
     return Container(
       height: 161.h, // Adjust height as needed
@@ -191,7 +220,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(width: 4),
                           Expanded(
-                            child: Text(address, style: AppTextStyles.w400(10)),
+                            child: Text(
+                              fullAddress ?? "Address",
+                              style: AppTextStyles.w400(10),
+                            ),
                           ),
                         ],
                       ),
@@ -201,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 InkWell(
                   onTap: () {
                     // Make sure NotificationPage is imported
-                    // context.push(NotificationPage.path);
+                    context.push(NotificationPage.path);
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
@@ -275,43 +307,72 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           SizedBox(height: 16.h),
 
-          // TODO: Replace this with your actual search results from bloc
-          // BlocBuilder<SearchBloc, SearchState>(
-          //   builder: (context, state) {
-          //     if (state is SearchLoading) {
-          //       return Center(child: CircularProgressIndicator());
-          //     }
-          //     if (state is SearchLoaded) {
-          //       return ListView.builder(
-          //         shrinkWrap: true,
-          //         physics: NeverScrollableScrollPhysics(),
-          //         itemCount: state.results.length,
-          //         itemBuilder: (context, index) {
-          //           return ListTile(
-          //             title: Text(state.results[index].name),
-          //             onTap: () {
-          //               // Navigate to product detail
-          //             },
-          //           );
-          //         },
-          //       );
-          //     }
-          //     return Center(child: Text('No results found'));
-          //   },
-          // ),
+          BlocBuilder<SearchBloc, SearchState>(
+            builder: (context, state) {
+              if (state is SearchLoading) {
+                return Center(child: CircularProgressIndicator());
+              }
+              if (state is SearchLoaded) {
+                final products = state.products;
+
+                if (products.isEmpty) {
+                  return Center(child: Text('No results found'));
+                }
+
+                return GridView.builder(
+                  padding: EdgeInsets.symmetric(
+                    // horizontal: 16.w,
+                    vertical: 8.h,
+                  ),
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.65,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 10,
+                  ),
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    final ProductEntity product = products[index];
+                    return GestureDetector(
+                      onTap: () {
+                        context.push(
+                          ProductDetailPage.path,
+                          extra: ProductDetailsArgs(
+                            tag: "featured_product_$index",
+                            cate: product,
+                          ),
+                        );
+                      },
+                      child: ProductCard(data: product, index: index),
+                    );
+                  },
+                );
+                // return ListView.builder(
+                //   shrinkWrap: true,
+                //   physics: NeverScrollableScrollPhysics(),
+                //   itemCount: state.products.length,
+                //   itemBuilder: (context, index) {
+                //     return ListTile(
+                //       title: Text(state.products[index].M1_NAME ?? ""),
+                //       onTap: () {
+                //         // Navigate to product detail
+                //       },
+                //     );
+                //   },
+                // );
+              }
+              return Center(child: Text('No results found'));
+            },
+          ),
 
           // Placeholder for now
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Iconsax.search_normal, size: 64, color: Colors.grey[400]),
-                SizedBox(height: 16.h),
-                Text(
-                  'Searching for products...',
-                  style: AppTextStyles.w600(14),
-                ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 28.h),
                 Text(
                   'Search results will appear here',
                   style: AppTextStyles.w400(12),
@@ -364,6 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 14,
                     ),
                     decoration: BoxDecoration(
+                      border: Border.all(color: Colours.primaryColor),
                       color: Colors.yellow.shade50,
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -388,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(width: 12.w),
               Expanded(
                 child: GestureDetector(
-                  onTap: _onCallTapped,
+                  onTap: onCallTapped,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 8),
                     padding: const EdgeInsets.symmetric(
@@ -396,6 +458,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       vertical: 14,
                     ),
                     decoration: BoxDecoration(
+                      border: Border.all(color: Colours.primaryColor),
                       color: Colors.yellow.shade50,
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -421,28 +484,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
         SizedBox(height: 8.h),
 
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            children: [
-              Text(
-                "Most Popular category",
-                style: AppTextStyles.w700(16).black,
-              ),
-            ],
-          ),
-        ),
-
-        SizedBox(height: 8.h),
-
         //  start from here
-        BlocBuilder<CategoryBloc, CategoryState>(
+        BlocBuilder<FeaturesBloc, FeaturesState>(
           builder: (context, state) {
-            if (state is CategorySuccess) {
-              final data = state.categories;
-              return CategoryList(cate: data);
+            if (state is FeaturesLoaded) {
+              final data = state.featuresEntity;
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: data.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return FeaturedWidget(feature: data[index]);
+                },
+              );
             }
-            if (state is CategoryLoading) {
+            if (state is FeaturesLoading) {
               return CategoryShimmer();
             }
             return SizedBox.shrink();
@@ -460,7 +516,28 @@ class _HomeScreenState extends State<HomeScreen> {
         preferredSize: Size.fromHeight(140.h),
         child: _buildAppBar(),
       ),
-      backgroundColor: Colours.secondaryBackgroundColour,
+
+      // backgroundColor: Colours.secondaryBackgroundColour,
+      floatingActionButton: Container(
+        height: 70,
+        child: BlocBuilder<CartBloc, CartState>(
+          builder: (context, state) {
+            final items = state.items;
+
+            if (items.isEmpty) {
+              return SizedBox.shrink();
+            }
+            return FloatingCartButton(
+              itemCount: items.length,
+
+              onTap: () {
+                context.go(Cart.path);
+              },
+            );
+          },
+        ),
+      ),
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 8.0),

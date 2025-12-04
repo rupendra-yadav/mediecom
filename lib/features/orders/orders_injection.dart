@@ -9,8 +9,7 @@ import 'package:mediecom/features/orders/domain/use_cases/fetch_order_list_useca
 import 'package:mediecom/features/orders/domain/use_cases/insert_order_usecase.dart';
 import 'package:mediecom/features/orders/domain/use_cases/update_order_status_usecase.dart';
 import 'package:mediecom/features/orders/presentation/bloc/orders_bloc.dart';
-
-final sl = GetIt.instance;
+import 'package:mediecom/injection_container.dart';
 
 Future<void> initOrders() async {
   // BLoC

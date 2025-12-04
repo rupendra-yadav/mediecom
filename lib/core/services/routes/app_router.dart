@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mediecom/core/common/widgets/webview_launcher.dart';
 import 'package:mediecom/core/services/routes/arguments/product_details.dart';
 import 'package:mediecom/features/auth/presentation/pages/onboarding_page.dart';
 import 'package:mediecom/features/auth/presentation/pages/otp_verification_page.dart';
 import 'package:mediecom/features/auth/presentation/pages/phone_number.dart';
-import 'package:mediecom/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:mediecom/features/auth/presentation/pages/splash_screen.dart';
 import 'package:mediecom/features/bottom_navigation/presentation/bottom_navigation_bar.dart';
 import 'package:mediecom/features/cart/presentation/pages/cart.dart';
@@ -19,6 +20,7 @@ import 'package:mediecom/features/notification/presentation/pages/notification.d
 import 'package:mediecom/features/orders/domain/entities/order_entity.dart';
 import 'package:mediecom/features/orders/presentation/pages/orders.dart';
 import 'package:mediecom/features/orders/presentation/pages/orders_detail.dart';
+import 'package:mediecom/features/user/presentation/pages/location_fetcher.dart';
 import 'package:mediecom/features/user/presentation/pages/profile.dart';
 import 'package:mediecom/features/user/presentation/pages/update_profile.dart';
 
@@ -55,15 +57,17 @@ final GoRouter router = GoRouter(
     ),
 
     GoRoute(
-      path: OnboardingPage.path,
-      pageBuilder: (context, state) =>
-          buildTransitionPage(const OnboardingPage(), slideInFromRight),
+      path: WebViewScreen.path,
+      pageBuilder: (context, state) {
+        final String url = state.extra as String;
+        return buildTransitionPage(WebViewScreen(url: url), slideInFromRight);
+      },
     ),
 
     GoRoute(
-      path: SignUpScreen.path,
+      path: OnboardingPage.path,
       pageBuilder: (context, state) =>
-          buildTransitionPage(const SignUpScreen(), slideInFromRight),
+          buildTransitionPage(const OnboardingPage(), slideInFromRight),
     ),
 
     GoRoute(
@@ -80,14 +84,25 @@ final GoRouter router = GoRouter(
 
     GoRoute(
       path: PaymentMethodPage.path,
-      pageBuilder: (context, state) =>
-          buildTransitionPage(const PaymentMethodPage(), slideUpFromBottom),
+      pageBuilder: (context, state) {
+        final cartPayload = state.extra as Map<String, dynamic>?;
+        return buildTransitionPage(
+          PaymentMethodPage(payload: cartPayload),
+          slideUpFromBottom,
+        );
+      },
     ),
 
     GoRoute(
       path: OrderConfirmationPage.path,
-      pageBuilder: (context, state) =>
-          buildTransitionPage(const OrderConfirmationPage(), slideUpFromBottom),
+      pageBuilder: (context, state) {
+        final data = state.extra as String;
+
+        return buildTransitionPage(
+          OrderConfirmationPage(orderId: data),
+          slideUpFromBottom,
+        );
+      },
     ),
 
     GoRoute(
@@ -145,8 +160,18 @@ final GoRouter router = GoRouter(
 
     GoRoute(
       path: ProcessRequestPage.path,
+      pageBuilder: (context, state) {
+        final XFile prescriptionImage = state.extra as XFile;
+        return buildTransitionPage(
+          ProcessRequestPage(prescriptionImage: prescriptionImage),
+          slideInFromRight,
+        );
+      },
+    ),
+    GoRoute(
+      path: LocationPage.path,
       pageBuilder: (context, state) =>
-          buildTransitionPage(const ProcessRequestPage(), slideInFromRight),
+          buildTransitionPage(const LocationPage(), slideInFromRight),
     ),
 
     /// Bottom Navigation Routes

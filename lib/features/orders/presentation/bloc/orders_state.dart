@@ -43,7 +43,14 @@ class OrderHistorySuccess extends OrdersState {
 
 class OrderStatusUpdateSuccess extends OrdersState {}
 
-class OrderInsertSuccess extends OrdersState {}
+class OrderInsertSuccess extends OrdersState {
+  final String orderId;
+
+  const OrderInsertSuccess(this.orderId);
+
+  @override
+  List<Object?> get props => [orderId];
+}
 
 class OrdersFailure extends OrdersState {
   final String message;

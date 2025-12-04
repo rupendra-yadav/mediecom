@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
+import 'package:mediecom/core/Helper/ApiHelpers.dart';
 import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/features/auth/presentation/auth_injection.dart';
 import 'package:mediecom/features/master/presentation/master_injection.dart';
@@ -11,21 +12,25 @@ import 'package:mediecom/features/explore/presentation/explore_injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
-
 Future<void> init() async {
   final prefs = await SharedPreferences.getInstance();
 
-  sl
-    ..registerLazySingleton(() => prefs)
-    ..registerLazySingleton(() => http.Client())
-    // ..registerLazySingleton(() => InAppReview.instance)
-    ..registerLazySingleton(() => CacheHelper(sl()));
+  if (!sl.isRegistered<SharedPreferences>()) {
+    sl.registerLazySingleton<SharedPreferences>(() => prefs);
+  }
 
-  // /// Firebase and Notification Services
-  // sl.registerLazySingleton(() => FirebaseMessaging.instance);
-  // sl.registerLazySingleton(() => PushNotificationService(sl()));
+  if (!sl.isRegistered<http.Client>()) {
+    sl.registerLazySingleton<http.Client>(() => http.Client());
+  }
 
-  /// Initialize each feature's injection
+  if (!sl.isRegistered<Apihelpers>()) {
+    sl.registerLazySingleton<Apihelpers>(() => Apihelpers(client: sl()));
+  }
+
+  if (!sl.isRegistered<CacheHelper>()) {
+    sl.registerLazySingleton<CacheHelper>(() => CacheHelper(sl()));
+  }
+
   initAuth();
   initMaster();
   initProfile();
@@ -33,8 +38,4 @@ Future<void> init() async {
   initNotification();
   initCartDependencies();
   initExplore();
-  // initVendors();
-  // initBooking();
-  // initWishlist();
-  // initPG();
 }

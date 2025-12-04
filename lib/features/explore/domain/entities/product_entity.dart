@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 class ProductEntity extends Equatable {
   final String? M1_CODE;
   final String? M1_NAME;
+  final String? M1_LNAME;
   final String? M1_LST;
   final String? M1_CST;
   final String? M1_IT;
@@ -25,6 +26,7 @@ class ProductEntity extends Equatable {
   ProductEntity({
     this.M1_CODE,
     this.M1_NAME,
+    this.M1_LNAME,
     this.M1_LST,
     this.M1_CST,
     this.M1_IT,
@@ -49,6 +51,7 @@ class ProductEntity extends Equatable {
   List<Object?> get props => [
     M1_CODE,
     M1_NAME,
+    M1_LNAME,
     M1_LST,
     M1_CST,
     M1_IT,

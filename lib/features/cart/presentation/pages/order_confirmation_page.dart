@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
@@ -7,8 +8,9 @@ import 'package:mediecom/features/orders/presentation/pages/orders.dart';
 
 class OrderConfirmationPage extends StatelessWidget {
   static const path = "/order-confirmation";
+  final String orderId;
 
-  const OrderConfirmationPage({super.key});
+  const OrderConfirmationPage({super.key, required this.orderId});
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +67,9 @@ class OrderConfirmationPage extends StatelessWidget {
                   _detailTile(
                     icon: Icons.receipt_long,
                     title: "Order ID",
-                    value: "112-3581321-9569019",
+                    value: orderId,
                     showCopy: true,
+                    context: context,
                   ),
 
                   const SizedBox(height: 16),
@@ -76,14 +79,15 @@ class OrderConfirmationPage extends StatelessWidget {
                     title: "Estimated Delivery",
                     value: "Tomorrow, 25 July",
                     valueColor: Colors.green.shade700,
-                    subtitle: "Shipping to 123 Health St, Wellness City",
+                    subtitle: "Shipping to your default address",
+                    context: context,
                   ),
 
                   const SizedBox(height: 20),
 
-                  _orderSummary(),
-
-                  const SizedBox(height: 100),
+                  // _orderSummary(),
+                  const SizedBox(height: 60),
+                  _bottomButtons(context),
                 ],
               ),
             ),
@@ -100,8 +104,6 @@ class OrderConfirmationPage extends StatelessWidget {
           ],
         ),
       ),
-
-      bottomNavigationBar: _bottomButtons(context),
     );
   }
 
@@ -169,6 +171,7 @@ class OrderConfirmationPage extends StatelessWidget {
     String? subtitle,
     bool showCopy = false,
     Color? valueColor,
+    required BuildContext context,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -213,7 +216,21 @@ class OrderConfirmationPage extends StatelessWidget {
             ),
           ),
 
-          if (showCopy) Icon(Icons.copy, color: Colors.grey.shade600, size: 22),
+          // COPY BUTTON
+          if (showCopy)
+            InkWell(
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: value));
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Order ID copied to clipboard"),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              child: Icon(Icons.copy, color: Colors.grey.shade600, size: 22),
+            ),
         ],
       ),
     );
@@ -223,7 +240,7 @@ class OrderConfirmationPage extends StatelessWidget {
 
   Widget _bottomButtons(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(1),
       color: const Color(0xFFE0F4F6),
       child: Column(
         mainAxisSize: MainAxisSize.min,

@@ -1,13 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
 import 'package:mediecom/features/explore/presentation/widgets/confirmation_popup.dart';
+import 'package:mediecom/features/user/presentation/blocs/profile/profile_bloc.dart';
 
 class ProcessRequestPage extends StatefulWidget {
   static const path = '/process_request';
-  const ProcessRequestPage({super.key});
+  final XFile prescriptionImage;
+  const ProcessRequestPage({super.key, required this.prescriptionImage});
 
   @override
   State<ProcessRequestPage> createState() => _ProcessRequestPageState();
@@ -28,85 +34,98 @@ class _ProcessRequestPageState extends State<ProcessRequestPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 22.h),
-
-              Text(
-                "How would you like us to process your request?",
-                style: AppTextStyles.w600(16),
+      body: BlocListener<ProfileBloc, ProfileState>(
+        listener: (context, state) {
+          if (state is PrescriptionSuccess) {
+            Navigator.of(context).push(
+              PageRouteBuilder(
+                opaque: false,
+                barrierDismissible: true,
+                pageBuilder: (_, __, ___) => PrescriptionUploadedPopup(),
               ),
+            );
+          }
+        },
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 22.h),
 
-              SizedBox(height: 12.h),
+                Text(
+                  "How would you like us to process your request?",
+                  style: AppTextStyles.w600(16),
+                ),
 
-              _optionTile(
-                index: 0,
-                title: "Order everything from the prescription",
-                subtitle:
-                    "Our pharmacist will arrange medicines as per your prescription(s)",
-                icon: Icons.receipt_long_outlined,
-              ),
+                SizedBox(height: 12.h),
 
-              SizedBox(height: 12.h),
+                _optionTile(
+                  index: 0,
+                  title: "Order everything from the prescription",
+                  subtitle:
+                      "Our pharmacist will arrange medicines as per your prescription(s)",
+                  icon: Icons.receipt_long_outlined,
+                ),
 
-              _optionTile(
-                index: 1,
-                title: "Request pharmacist to call",
-                subtitle:
-                    "Our pharmacist will call you to confirm the medicines you need",
-                icon: Iconsax.call,
-              ),
+                SizedBox(height: 12.h),
 
-              SizedBox(height: 40.h),
+                _optionTile(
+                  index: 1,
+                  title: "Request pharmacist to call",
+                  subtitle:
+                      "Our pharmacist will call you to confirm the medicines you need",
+                  icon: Iconsax.call,
+                ),
 
-              Row(
-                children: [
-                  Icon(Icons.bolt, color: Colors.orange, size: 22.sp),
-                  SizedBox(width: 6.w),
+                SizedBox(height: 40.h),
 
-                  RichText(
-                    text: TextSpan(
-                      style: AppTextStyles.w500(
-                        14,
-                      ).copyWith(color: Colors.black),
-                      children: [
-                        const TextSpan(text: "We will take about "),
+                Row(
+                  children: [
+                    Icon(Icons.bolt, color: Colors.orange, size: 22.sp),
+                    SizedBox(width: 6.w),
 
-                        TextSpan(
-                          text: "4 minutes",
-                          style: AppTextStyles.w600(
-                            14,
-                          ).copyWith(color: Colors.green),
-                        ),
+                    RichText(
+                      text: TextSpan(
+                        style: AppTextStyles.w500(
+                          14,
+                        ).copyWith(color: Colors.black),
+                        children: [
+                          const TextSpan(text: "We will take about "),
 
-                        const TextSpan(text: " to \nprocess your request"),
-                      ],
+                          TextSpan(
+                            text: "4 minutes",
+                            style: AppTextStyles.w600(
+                              14,
+                            ).copyWith(color: Colors.green),
+                          ),
+
+                          const TextSpan(text: " to \nprocess your request"),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              SizedBox(height: 40.h),
-              SizedBox(height: 22.h),
+                SizedBox(height: 40.h),
+                SizedBox(height: 22.h),
 
-              Text(
-                "Your assigned pharmacist will make the following selections:",
-                style: AppTextStyles.w600(15).copyWith(color: Colors.black87),
-              ),
-              SizedBox(height: 12.h),
+                Text(
+                  "Your assigned pharmacist will make the following selections:",
+                  style: AppTextStyles.w600(15).copyWith(color: Colors.black87),
+                ),
+                SizedBox(height: 12.h),
 
-              _tickItem("Add medicines"),
-              _tickItem("Apply best coupon"),
-              _tickItem("Choose earliest delivery date"),
+                _tickItem("Add medicines"),
+                _tickItem("Apply best coupon"),
+                _tickItem("Choose earliest delivery date"),
 
-              SizedBox(height: 26.h),
+                SizedBox(height: 26.h),
 
-              SizedBox(height: 150.h),
-            ],
+                SizedBox(height: 150.h),
+              ],
+            ),
           ),
         ),
       ),
@@ -147,16 +166,11 @@ class _ProcessRequestPageState extends State<ProcessRequestPage> {
                 height: 48.h,
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        opaque: false,
-                        barrierDismissible: true,
-                        pageBuilder: (_, __, ___) =>
-                            PrescriptionUploadedPopup(),
-                      ),
-                    );
-                  },
+                  onPressed: () => context.read<ProfileBloc>().add(
+                    UploadPrescriptionEvent(
+                      file: File(widget.prescriptionImage.path),
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colours.primaryColor,
                     shape: RoundedRectangleBorder(

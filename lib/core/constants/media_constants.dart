@@ -6,7 +6,7 @@ abstract class AppMedia {
   static const _baseLottie = 'assets/lottie';
 
   // IMAGE
-  static const imgSplash = '$_baseImage/img_logo.jpeg';
+  static const imgSplash = '$_baseImage/img_splash.png';
   static const imgComingSoon = '$_baseImage/coming_soon.jpg';
 
   /// LOTTIE FILES

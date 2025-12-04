@@ -100,13 +100,13 @@ class OrdersRepositoryImpl implements OrdersRepository {
   }
 
   @override
-  Future<Either<Failure, void>> insertOrder(
+  Future<Either<Failure, String>> insertOrder(
     Map<String, dynamic> orderData,
   ) async {
     try {
       appLog('Inserting order with data: $orderData');
-      await remoteDataSource.insertOrder(orderData);
-      return const Right(null);
+      final orderId = await remoteDataSource.insertOrder(orderData);
+      return Right(orderId);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
     } on NetworkException catch (e) {

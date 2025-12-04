@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:mediecom/core/constants/api_constants.dart';
+import 'package:mediecom/core/services/routes/arguments/product_details.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_bloc.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_event.dart';
+import 'package:mediecom/features/cart/presentation/blocs/cart_state.dart';
 import 'package:mediecom/features/explore/domain/entities/product_entity.dart';
 import 'package:mediecom/features/explore/presentation/bloc/product_bloc.dart';
+import 'package:mediecom/features/explore/presentation/pages/product_details.dart';
 import 'package:mediecom/features/explore/presentation/widgets/gradient_appBar.dart';
 import 'package:mediecom/features/master/presentation/blocs/category/category_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/sub_category/sub_category_bloc.dart';
@@ -22,139 +26,156 @@ class SubcategoryPage extends StatefulWidget {
 }
 
 class _SubcategoryPageState extends State<SubcategoryPage> {
-  int selectedIndex = 0; // 👈 tracks selected category index
-
-  final List<String> subcategory = [
-    "Ticks & Flea",
-    "Skin & Coat Care",
-    "Joint Care",
-    "Digestive Aid",
-    "Liver Care",
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    // context.read<SubCategoryBloc>().add(FetchSubCategoryEvent(catId: "catId"));
-  }
+  int selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: GradientAppBar(
-        name: "Pet Supplements",
+        name: "Categories",
         address: "",
         isUserName: false,
         leading: true,
       ),
-
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   backgroundColor: Colors.white,
-      //   leading: IconButton(
-      //     icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-      //     onPressed: () => Navigator.pop(context),
-      //   ),
-      //   title: const Text("Pet Supplements", style: AppTextStyles.karala12w800),
-      //   actions: const [
-      //     Icon(Iconsax.search_normal, color: Colors.black, size: 22),
-      //     SizedBox(width: 12),
-
-      //     SizedBox(width: 12),
-      //   ],
-      // ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Left side subcategory
+          // Left side category navigation
           BlocBuilder<CategoryBloc, CategoryState>(
             builder: (context, state) {
               if (state is CategorySuccess) {
                 final subcategory = state.categories;
-                // final categoryName = subcategory[0].;
                 return Container(
-                  width: 90.w,
-                  color: Colours.primaryBackgroundColour,
-                  child: Column(
-                    children: [
-                      // _buildCategoryItem(categoryName ?? "", false),
-                      // Divider(),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        // padding: const EdgeInsets.symmetric(vertical: 16),
-                        itemCount: subcategory.length,
-                        itemBuilder: (context, index) {
-                          final isSelected = selectedIndex == index;
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedIndex = index; // 👈 updates selection
-                              });
-                            },
-                            child: _buildCategoryItem(
-                              subcategory[index].m1Name ?? "",
-                              isSelected,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                  width: 100,
+                  color: Colors.white,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemCount: subcategory.length,
+                    itemBuilder: (context, index) {
+                      final isSelected = selectedIndex == index;
+                      return GestureDetector(
+                        onTap: () => setState(() => selectedIndex = index),
+                        child: _buildCategoryItem(
+                          subcategory[index].m1Name ?? "",
+                          subcategory[index].m1dc1,
+                          isSelected,
+                        ),
+                      );
+                    },
                   ),
                 );
               }
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             },
           ),
 
+          Container(width: 1, color: Colors.grey[200]),
+
           // Right side product list
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView(
-                children: [
-                  const SizedBox(height: 8),
-                  // Sort & Filter row
-                  Row(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _sortFilterButton(Iconsax.sort, "Sort"),
-                      SizedBox(width: 4.w),
-                      _sortFilterButton(Iconsax.filter, "All filters"),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
                     ],
                   ),
-                  SizedBox(height: 16),
-                  BlocBuilder<ProductBloc, ProductState>(
-                    builder: (context, state) {
-                      if (state is ProductLoaded) {
-                        final products = state.products;
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: products.length,
-                          itemBuilder: (context, index) {
-                            final data = products[index];
-                            return _buildProductCard(data: data);
+                  child: Row(
+                    children: [
+                      _sortFilterButton(Iconsax.sort, "Sort"),
+                      const SizedBox(width: 8),
+                      _sortFilterButton(Iconsax.filter, "Filters"),
+                    ],
+                  ),
+                ),
+
+                // Products list with synced quantities
+                Expanded(
+                  child: BlocBuilder<ProductBloc, ProductState>(
+                    builder: (context, productState) {
+                      if (productState is ProductLoaded) {
+                        final products = productState.products;
+
+                        if (products.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Iconsax.box,
+                                  size: 64,
+                                  color: Colors.grey[400],
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No products found',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return BlocBuilder<CartBloc, CartState>(
+                          builder: (context, cartState) {
+                            return ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: products.length,
+                              itemBuilder: (context, index) {
+                                final data = products[index];
+                                final quantity =
+                                    cartState.quantities[data.M1_CODE] ?? 0;
+
+                                return InkWell(
+                                  onTap: () {
+                                    context.push(
+                                      ProductDetailPage.path,
+                                      extra: ProductDetailsArgs(
+                                        tag: "featured_product_$index",
+                                        cate: data,
+                                      ),
+                                    );
+                                  },
+                                  child: _buildProductCard(
+                                    context: context,
+                                    data: data,
+                                    quantity: quantity,
+                                  ),
+                                );
+                              },
+                            );
                           },
                         );
-                        // return _buildProductCard(
-                        //   imageUrl:
-                        //       "https://m.media-amazon.com/images/I/61Isdg+63+L._SL1500_.jpg",
-                        //   title: "ClearKill -IMX Spot On for Dogs 10–25kg",
-                        //   subtitle: "2.5 ml Liquid\nGet by Fri, 31 Oct",
-                        //   price: "₹548",
-                        //   originalPrice: "₹563",
-                        //   discount: "3% off",
-                        //   offerPrice: "₹493",
-                        // );
                       }
-                      return SizedBox.shrink();
+
+                      if (productState is ProductLoading) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Colours.primaryColor,
+                          ),
+                        );
+                      }
+
+                      return const SizedBox.shrink();
                     },
                   ),
-
-                  const SizedBox(height: 100),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -162,42 +183,61 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
     );
   }
 
-  Widget _buildCategoryItem(String name, bool selected) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+  Widget _buildCategoryItem(String name, String imageUrl, bool selected) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: selected ? Colors.white : Colors.transparent,
+        color: selected
+            ? Colours.primaryColor.withOpacity(0.08)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
         border: selected
-            ? const Border(left: BorderSide(color: Colors.purple, width: 3))
+            ? Border.all(color: Colours.primaryColor, width: 2)
             : null,
       ),
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       child: Column(
         children: [
           Container(
-            width: 50,
-            height: 50,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: selected ? Colours.primaryColor : Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: Colours.primaryColor.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
+                  : null,
             ),
-            child: Center(
-              child: Icon(
-                Iconsax.magicpen5,
-                color: selected ? Colors.purple : Colors.black54,
-                size: 24,
-              ),
+            child: Image.network(
+              "${ApiConstants.categoryBase}$imageUrl",
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(
+                  Iconsax.category5,
+                  color: selected ? Colors.white : Colors.grey[600],
+                  size: 24,
+                );
+              },
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             name,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: selected ? Colors.purple : Colors.black54,
+              color: selected ? Colours.primaryColor : Colors.grey[700],
+              height: 1.2,
             ),
           ),
         ],
@@ -206,63 +246,118 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
   }
 
   Widget _sortFilterButton(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black26),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 16),
-          const SizedBox(width: 4),
-          Text(text, style: const TextStyle(fontSize: 12)),
-        ],
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: Colors.grey[700]),
+            const SizedBox(width: 6),
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[700],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildProductCard({required ProductEntity data}) {
-    // imageUrl: data.image.isNotEmpty
-    //     ? "${ApiConstants.productBase}${data.image[0]}"
-    //     : "",
-    // title: data.M1_NAME ?? "",
-    // subtitle:
-    //     "${data.M1_ADD1 ?? ""} ${data.M1_ADD1 ?? ""}\nGet by Fri, 31 Oct",
-    // price: "₹${data.M1_AMT1 ?? ""}",
-    // originalPrice: "₹${data.M1_AMT2 ?? ""}",
-    // discount: "${data.M1_GROUP ?? ""}% off",
-    // offerPrice: "₹${data.M1_VAL ?? ""}",
+  Widget _buildProductCard({
+    required BuildContext context,
+    required ProductEntity data,
+    required int quantity,
+  }) {
+    double originalPrice = double.tryParse(data.M1_AMT1 ?? '0') ?? 0;
+    double discountedPrice = double.tryParse(data.M1_AMT2 ?? '0') ?? 0;
+    int discountPercent = 0;
+
+    if (originalPrice > 0 && discountedPrice > 0) {
+      discountPercent =
+          (((originalPrice - discountedPrice) / originalPrice) * 100).round();
+    }
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black12),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              data.image.isNotEmpty
-                  ? "${ApiConstants.productBase}${data.image[0]}"
-                  : "",
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Image.asset(
-                  width: 80,
-                  height: 80,
-                  "assets/burger_hero.png",
-                );
-              },
-            ),
+          Column(
+            children: [
+              Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey[100],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: data.image.isNotEmpty
+                    ? Image.network(
+                        data.image[0],
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Iconsax.box,
+                            size: 40,
+                            color: Colors.grey[400],
+                          );
+                        },
+                      )
+                    : Icon(Iconsax.box, size: 40, color: Colors.grey[400]),
+              ),
+              const SizedBox(height: 6),
+              if (discountPercent > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    "$discountPercent% OFF",
+                    style: const TextStyle(
+                      color: Color(0xFFEF4444),
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,95 +365,147 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
                 Text(
                   data.M1_NAME ?? "Medicine name",
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Color(0xFF1A1A1A),
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  data.M1_CST ?? "",
-                  style: const TextStyle(fontSize: 11, color: Colors.black54),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Text(
-                      data.M1_AMT2 ?? "",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      data.M1_AMT1 ?? "",
-                      style: const TextStyle(
-                        decoration: TextDecoration.lineThrough,
-                        color: Colors.black45,
-                        fontSize: 12,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      "discount",
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                // Text(
-                //   "$offerPrice order for ₹1200",
-                //   style: const TextStyle(
-                //     color: Colors.purple,
-                //     fontWeight: FontWeight.w600,
-                //     fontSize: 12,
-                //   ),
-                // ),
+                if (data.M1_CST != null && data.M1_CST!.isNotEmpty)
+                  Text(
+                    data.M1_CST!,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 const SizedBox(height: 8),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        context.read<CartBloc>().add(AddToCart(item: data));
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colours.primaryColor,
-                            content: Text(
-                              'Added to cart',
-                              style: TextStyle(color: Colours.white),
-                            ),
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: 80,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colours.primaryColor),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          "ADD",
-                          style: TextStyle(
-                            color: Colours.primaryColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                    Text(
+                      "₹${data.M1_AMT2 ?? '0'}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Color(0xFF10B981),
                       ),
                     ),
+                    const SizedBox(width: 6),
+                    if (originalPrice > discountedPrice)
+                      Text(
+                        "₹${data.M1_AMT1}",
+                        style: TextStyle(
+                          decoration: TextDecoration.lineThrough,
+                          color: Colors.grey[500],
+                          fontSize: 12,
+                        ),
+                      ),
                   ],
                 ),
+                const SizedBox(height: 10),
+                _buildCartControl(context, data, quantity),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCartControl(
+    BuildContext context,
+    ProductEntity data,
+    int quantity,
+  ) {
+    if (quantity == 0) {
+      return GestureDetector(
+        onTap: () => context.read<CartBloc>().add(AddToCart(item: data)),
+        child: Container(
+          height: 36,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: Colours.primaryColor,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colours.primaryColor.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Iconsax.add, color: Colors.white, size: 16),
+              SizedBox(width: 6),
+              Text(
+                "ADD",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      height: 36,
+      decoration: BoxDecoration(
+        color: Colours.primaryColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: () {
+              context.read<CartBloc>().add(
+                UpdateQuantity(
+                  productCode: data.M1_CODE ?? '',
+                  quantity: quantity - 1,
+                ),
+              );
+            },
+            child: const SizedBox(
+              width: 32,
+              height: 36,
+              child: Center(
+                child: Icon(Iconsax.minus, color: Colors.white, size: 16),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              "$quantity",
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          InkWell(
+            onTap: () {
+              context.read<CartBloc>().add(
+                UpdateQuantity(
+                  productCode: data.M1_CODE ?? '',
+                  quantity: quantity + 1,
+                ),
+              );
+            },
+            child: const SizedBox(
+              width: 32,
+              height: 36,
+              child: Center(
+                child: Icon(Iconsax.add, color: Colors.white, size: 16),
+              ),
             ),
           ),
         ],

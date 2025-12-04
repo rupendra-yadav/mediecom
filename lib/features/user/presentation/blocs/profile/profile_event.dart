@@ -26,11 +26,11 @@ class UpdateProfileEvent extends ProfileEvent {
   List<Object?> get props => [params];
 }
 
-// class UpdateImageEvent extends ProfileEvent {
-//   final UpdateImageParams params;
+class UploadPrescriptionEvent extends ProfileEvent {
+  final File file;
 
-//   const UpdateImageEvent({required this.params});
+  const UploadPrescriptionEvent({required this.file});
 
-//   @override
-//   List<Object?> get props => [params];
-// }
+  @override
+  List<Object?> get props => [file];
+}

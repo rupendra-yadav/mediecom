@@ -8,31 +8,36 @@ import 'package:mediecom/core/common/error/app_failures.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 // import 'dart:developer';
 
-// import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 // import 'package:maps_launcher/maps_launcher.dart';
 
-// void launchCaller(String tel) async {
-//   var url = Uri.parse("tel:$tel");
-//   if (await canLaunchUrl(url)) {
-//     await launchUrl(url);
-//   } else {
-//     throw 'Could not launch $url';
-//   }
-// }
+void launchDialer(String phoneNumber) async {
+  final Uri dialUri = Uri(scheme: 'tel', path: phoneNumber);
 
-// void launchWhatsApp(String tel) async {
-//   final uri = Uri.parse(
-//     'https://wa.me/$tel?text=${Uri.encodeComponent("Hii")}',
-//   );
-//   // try {
-//   //   await launchUrl(uri, mode: LaunchMode.platformDefault);
-//   // } catch (e) {
-//   //   final Uri fallbackUri = Uri.parse(fallbackUrl);
-//   //   await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
-//   // }
+  if (!await launchUrl(dialUri)) {
+    throw "Could not launch dialer";
+  }
+}
 
-//   await launchUrl(uri, mode: LaunchMode.externalApplication);
-// }
+Future<void> openWhatsApp(String phone, String message) async {
+  final Uri whatsappUri = Uri.parse(
+    "https://wa.me/${phone.replaceAll(" ", "")}?text=${Uri.encodeComponent(message)}",
+  );
+
+  if (!await launchUrl(whatsappUri, mode: LaunchMode.externalApplication)) {
+    throw "Could not open WhatsApp";
+  }
+}
+
+Future<void> launchEmail(String email, String subject) async {
+  final Uri uri = Uri.parse(
+    "mailto:$email?subject=${Uri.encodeComponent(subject)}",
+  );
+
+  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    debugPrint("Could not launch email client");
+  }
+}
 
 // Future<void> goToUrl(String? url) async {
 //   if (url == null || url.isEmpty) return; // skip empty

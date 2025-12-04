@@ -14,5 +14,5 @@ abstract class OrdersRepository {
     String orderId,
     String status,
   );
-  Future<Either<Failure, void>> insertOrder(Map<String, dynamic> orderData);
+  Future<Either<Failure, String>> insertOrder(Map<String, dynamic> orderData);
 }

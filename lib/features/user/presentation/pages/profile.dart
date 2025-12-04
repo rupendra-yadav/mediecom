@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mediecom/core/common/app/cache_helper.dart';
-import 'package:mediecom/core/common/singletons/cache.dart';
-import 'package:mediecom/core/common/widgets/full_screen_loader.dart';
+import 'package:mediecom/core/common/widgets/webview_launcher.dart';
 import 'package:mediecom/core/constants/api_constants.dart';
 import 'package:mediecom/core/extentions/color_extensions.dart';
 import 'package:mediecom/core/style/app_colors.dart';
-import 'package:mediecom/features/auth/presentation/pages/splash_screen.dart';
-import 'package:mediecom/features/orders/orders_injection.dart';
+import 'package:mediecom/features/explore/presentation/widgets/gradient_appBar.dart';
 import 'package:mediecom/features/orders/presentation/pages/orders.dart';
 import 'package:mediecom/features/user/data/models/user_model.dart';
 import 'package:mediecom/features/user/domain/entities/user_entity.dart';
 import 'package:mediecom/features/user/presentation/blocs/profile/profile_bloc.dart';
+import 'package:mediecom/features/user/presentation/pages/location_fetcher.dart';
 import 'package:mediecom/features/user/presentation/pages/update_profile.dart';
 import 'package:mediecom/features/user/presentation/widgets/profile_shimmer.dart';
+import 'package:mediecom/injection_container.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   static const path = '/profile';
@@ -46,15 +47,83 @@ class _ProfilePageState extends State<ProfilePage> {
     // });
   }
 
+  Future<LocationResult?> getCachedLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lat = prefs.getDouble('lat');
+    final lng = prefs.getDouble('lng');
+    final city = prefs.getString('city');
+    final district = prefs.getString('district');
+    final fullAddress = prefs.getString('fullAddress');
+
+    if (lat != null &&
+        lng != null &&
+        city != null &&
+        district != null &&
+        fullAddress != null) {
+      return LocationResult(
+        lat: lat,
+        lng: lng,
+        city: city,
+        district: district,
+        fullAddress: fullAddress,
+      );
+    }
+    return null;
+  }
+
+  void _showLocationDialog(BuildContext context) async {
+    final location = await getCachedLocation();
+
+    if (location == null) {
+      // If no location saved
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text('No Location Found'),
+          content: const Text('You have not saved any location yet.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // Show the saved location
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => AlertDialog(
+        title: const Text('Delivery Address'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('City: ${location.city}'),
+            Text('District: ${location.district}'),
+            Text('Full Address: ${location.fullAddress}'),
+            Text('Latitude: ${location.lat}'),
+            Text('Longitude: ${location.lng}'),
+          ],
+        ),
+        actions: [TextButton(onPressed: () {}, child: const Text('Close'))],
+      ),
+    );
+  }
+
   // Medium grey icon color
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: GradientAppBar(name: 'Profile', address: '', isUserName: false),
       backgroundColor:
           Colours.primaryBackgroundColour, // Light primary background
 
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+        // padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -87,29 +156,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
 
             SizedBox(height: 30),
-            // Quick Info Cards
-            // Row(
-            //   children: [
-            //     Expanded(
-            //       child: _buildInfoCard(
-            //         context,
-            //         label: 'Total Orders',
-            //         value: '12',
-            //         icon: Icons.shopping_bag_outlined,
-            //       ),
-            //     ),
-            //     const SizedBox(width: 16),
-            //     Expanded(
-            //       child: _buildInfoCard(
-            //         context,
-            //         label: 'Wishlist',
-            //         value: '8 items',
-            //         icon: Icons.favorite_border,
-            //       ),
-            //     ),
-            //   ],
-            // ),
-            // const SizedBox(height: 32),
 
             // Profile Sections
             _buildSectionHeader('Account & Settings'),
@@ -130,14 +176,9 @@ class _ProfilePageState extends State<ProfilePage> {
               context,
               title: 'Delivery Addresses',
               icon: Icons.location_on_outlined,
-              onTap: () => print('Delivery Addresses tapped!'),
+              onTap: () => _showLocationDialog(context),
             ),
-            _buildProfileListItem(
-              context,
-              title: 'Payment Methods',
-              icon: Icons.credit_card_outlined,
-              onTap: () => print('Payment Methods tapped!'),
-            ),
+
             const SizedBox(height: 22),
 
             // _buildSectionHeader('App Preferences'),
@@ -166,21 +207,44 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 12),
             _buildProfileListItem(
               context,
-              title: 'Help Center',
+              title: 'About Us',
+              icon: Icons.info,
+              onTap: () =>
+                  context.push(WebViewScreen.path, extra: ApiConstants.aboutUs),
+            ),
+            _buildProfileListItem(
+              context,
+              title: 'Contact Us',
+              icon: Icons.call,
+              onTap: () =>
+                  context.push(WebViewScreen.path, extra: ApiConstants.faq),
+            ),
+            _buildProfileListItem(
+              context,
+              title: 'Refund Policy',
               icon: Icons.help_outline,
-              onTap: () => print('Help Center tapped!'),
+              onTap: () => context.push(
+                WebViewScreen.path,
+                extra: ApiConstants.refundPolicy,
+              ),
             ),
             _buildProfileListItem(
               context,
               title: 'Privacy Policy',
               icon: Icons.privacy_tip_outlined,
-              onTap: () => print('Privacy Policy tapped!'),
+              onTap: () => context.push(
+                WebViewScreen.path,
+                extra: ApiConstants.privacyPolicy,
+              ),
             ),
             _buildProfileListItem(
               context,
               title: 'Terms of Service',
               icon: Icons.description_outlined,
-              onTap: () => print('Terms of Service tapped!'),
+              onTap: () => context.push(
+                WebViewScreen.path,
+                extra: ApiConstants.termsConditions,
+              ),
             ),
             const SizedBox(height: 32),
 
@@ -265,7 +329,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
       child: Text(
         title,
         style: const TextStyle(
@@ -281,7 +345,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       decoration: BoxDecoration(
         color: ProfilePage._cardBackground, // White card background
-        borderRadius: BorderRadius.circular(12),
+        // borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(
@@ -315,6 +379,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   backgroundImage: NetworkImage(
                     ApiConstants.profileBase + imageUrl,
                   ),
+                  child: imageUrl.isEmpty
+                      ? Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Colours.primaryColor,
+                        )
+                      : null,
                 ),
               ),
             ),
@@ -355,60 +426,66 @@ class _ProfilePageState extends State<ProfilePage> {
     String? trailingText,
     bool isLogout = false,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8.0),
-      decoration: BoxDecoration(
-        color: ProfilePage._cardBackground, // White card background
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(
-              0.1,
-            ), // Subtle shadow for light theme
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ListTile(
-        leading: Container(
-          height: 40,
-          width: 40,
-          decoration: BoxDecoration(
-            color: !isLogout
-                ? Colours.primaryBackgroundColour
-                : Colours.error.o10,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            color: isLogout ? Colors.red.shade400 : Colours.primaryColor,
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 2.0),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8.0),
+        decoration: BoxDecoration(
+          color: ProfilePage._cardBackground, // White card background
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(
+                0.1,
+              ), // Subtle shadow for light theme
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: isLogout ? Colors.red.shade400 : ProfilePage._textColor,
+        child: ListTile(
+          leading: Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: !isLogout
+                  ? Colours.primaryBackgroundColour
+                  : Colours.error.o10,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              color: isLogout ? Colors.red.shade400 : Colours.primaryColor,
+            ),
           ),
-        ),
-        trailing: trailingText != null
-            ? Text(
-                trailingText,
-                style: const TextStyle(
-                  color: ProfilePage._subtextColor,
-                  fontSize: 14,
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: isLogout ? Colors.red.shade400 : ProfilePage._textColor,
+            ),
+          ),
+          trailing: trailingText != null
+              ? Text(
+                  trailingText,
+                  style: const TextStyle(
+                    color: ProfilePage._subtextColor,
+                    fontSize: 14,
+                  ),
+                )
+              : Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
+                  color: !isLogout ? ProfilePage._subtextColor : Colours.white,
                 ),
-              )
-            : Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: !isLogout ? ProfilePage._subtextColor : Colours.white,
-              ),
-        onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          onTap: onTap,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
+        ),
       ),
     );
   }

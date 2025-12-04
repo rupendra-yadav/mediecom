@@ -12,7 +12,7 @@ class FeaturesModel extends FeaturesEntity {
   });
 
   factory FeaturesModel.fromJson(Map<String, dynamic> json) {
-    final type = json['type']?.toString() ?? '';
+    final type = json['M1_LNAME']?.toString() ?? '';
 
     return FeaturesModel(
       name: json['M1_NAME']?.toString() ?? '',

@@ -9,13 +9,17 @@ import 'package:mediecom/features/auth/presentation/bloc/send_otp/send_otp_bloc.
 import 'package:mediecom/features/auth/presentation/bloc/sign_in/sign_in_bloc.dart';
 import 'package:mediecom/features/auth/presentation/bloc/verify_otp/verify_otp_bloc.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_bloc.dart';
+import 'package:mediecom/features/explore/presentation/bloc/features/features_bloc.dart';
 import 'package:mediecom/features/explore/presentation/bloc/product_bloc.dart';
+import 'package:mediecom/features/explore/presentation/bloc/search/search_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/banner/banner_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/category/category_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/sub_category/sub_category_bloc.dart';
 import 'package:mediecom/features/notification/presentation/bloc/notification_bloc.dart';
 import 'package:mediecom/features/orders/presentation/bloc/orders_bloc.dart';
 import 'package:mediecom/features/user/presentation/blocs/profile/profile_bloc.dart';
+
+import 'injection_container.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -34,6 +38,12 @@ class MyApp extends StatelessWidget {
           /// BANNERS/SLIDERS
           BlocProvider(create: (context) => sl<BannerBloc>()),
 
+          ///SEARCH
+          BlocProvider(create: (context) => sl<SearchBloc>()),
+
+          ///FEATURES
+          BlocProvider(create: (context) => sl<FeaturesBloc>()),
+
           ///CATEGORIES
           BlocProvider(create: (context) => sl<CategoryBloc>()),
           BlocProvider(create: (context) => sl<SubCategoryBloc>()),
@@ -48,7 +58,7 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (context) => sl<OrdersBloc>()),
 
           ///CART
-          BlocProvider(create: (context) => sl<CartBloc>()),
+          BlocProvider(create: (context) => CartBloc()),
 
           ///CART
           BlocProvider(create: (context) => sl<ProductBloc>()),

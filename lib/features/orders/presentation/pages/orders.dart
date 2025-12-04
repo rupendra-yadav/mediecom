@@ -7,11 +7,14 @@ import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/core/extentions/color_extensions.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/features/auth/presentation/auth_injection.dart';
+import 'package:mediecom/features/explore/presentation/widgets/gradient_appBar.dart';
 import 'package:mediecom/features/orders/domain/entities/order_entity.dart';
 import 'package:mediecom/features/orders/presentation/bloc/orders_bloc.dart';
 import 'package:mediecom/features/orders/presentation/bloc/orders_event.dart';
 import 'package:mediecom/features/orders/presentation/bloc/orders_state.dart';
 import 'package:mediecom/features/orders/presentation/pages/orders_detail.dart';
+
+import '../../../../injection_container.dart';
 
 class Orders extends StatefulWidget {
   static const path = '/order';
@@ -34,6 +37,7 @@ class _OrdersState extends State<Orders> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: GradientAppBar(name: 'Orders', address: '', isUserName: false),
       body: BlocBuilder<OrdersBloc, OrdersState>(
         builder: (context, state) {
           return switch (state) {
@@ -90,64 +94,6 @@ class _OrdersState extends State<Orders> {
     //     ),
     //   ),
     // );
-  }
-
-  Widget _buildStarRating(int rating) {
-    return Row(
-      children: List.generate(5, (index) {
-        return Icon(
-          index < rating ? Icons.star : Icons.star_border,
-          color: Colors.amber,
-          size: 18,
-        );
-      }),
-    );
-  }
-
-  Widget _buildTrackingTimeline() {
-    return Column(
-      children: [
-        _buildTimelineTile(
-          icon: Icons.check_circle,
-          title: 'Order Placed',
-          subtitle: 'We have received your order on 20-Dec-2019',
-          isFirst: true,
-          isActive: true,
-        ),
-        _buildTimelineTile(
-          icon: Icons.check_circle,
-          title: 'Order Confirmed',
-          subtitle: 'We have been confirmed on 20-Dec-2019',
-          isActive: true,
-        ),
-        _buildTimelineTile(
-          icon: Icons.refresh,
-          title: 'Order Processed',
-          subtitle: 'We are preparing your order',
-          isActive: true, // Assuming this is the current active step
-          color: Colors.green,
-        ),
-        _buildTimelineTile(
-          icon: Icons.local_shipping,
-          title: 'Ready to Ship',
-          subtitle: 'Your order is ready for shipping',
-          isActive: false,
-        ),
-        _buildTimelineTile(
-          icon: Icons.delivery_dining,
-          title: 'Out for Delivery',
-          subtitle: 'Your order is out for delivery',
-          isActive: false,
-        ),
-        _buildTimelineTile(
-          icon: Icons.home,
-          title: 'Delivered',
-          subtitle: 'Your order has been delivered',
-          isLast: true,
-          isActive: false,
-        ),
-      ],
-    );
   }
 
   String formatOrderDate(String dateStr) {
@@ -215,6 +161,25 @@ class _OrdersState extends State<Orders> {
       '4' => Colors.green, // delivered
       '5' => Colors.red, // cancelled
       _ => Colors.grey, // default
+    };
+  }
+
+  String getPaymentMethod(String status) {
+    return switch (status) {
+      '0' => 'Online',
+      '1' => 'Cash',
+      '2' => 'Advance Paid',
+
+      _ => 'Processing',
+    };
+  }
+
+  Color getPaymentMethodColor(String pm) {
+    return switch (pm) {
+      '2' => Colors.red, // unpaid
+      '1' => Colors.green, // paid
+      '0' => Colors.blueAccent, // advance
+      _ => Colors.grey,
     };
   }
 
@@ -319,15 +284,26 @@ class _OrdersState extends State<Orders> {
                           color: Colours.dark,
                         ),
                       ),
-                      SizedBox(width: 90),
 
-                      // Spacer(),
                       if (order.f4Pm != null)
-                        Text(
-                          ' ${order.f4Pm}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: getPaymentMethodColor(order.f4Pm ?? '').o10,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            getPaymentMethod(order.f4Pm ?? ''),
+                            // ' ${order.f4Pm}',
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: getPaymentMethodColor(order.f4Pm ?? ''),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                     ],

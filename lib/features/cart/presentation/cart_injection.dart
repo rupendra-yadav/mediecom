@@ -1,7 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_bloc.dart';
-
-final sl = GetIt.instance;
+import 'package:mediecom/injection_container.dart';
 
 Future<void> initCartDependencies() async {
   // BLoC

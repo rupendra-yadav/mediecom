@@ -117,4 +117,23 @@ class UserRepoImpl implements UserRepository {
       );
     }
   }
+
+  @override
+  Future<Either<Failure, String>> uploadPrescription(File photoPath) async {
+    try {
+      final message = await remoteDataSource.uploadPrescription(photoPath);
+      return Right(message);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message, statusCode: e.statusCode));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message, statusCode: e.statusCode));
+    } catch (e) {
+      return const Left(
+        UnexpectedFailure(
+          message: 'Unexpected error occurred while updating prescription',
+          statusCode: 500,
+        ),
+      );
+    }
+  }
 }

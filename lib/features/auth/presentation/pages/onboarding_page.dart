@@ -11,6 +11,8 @@ import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/features/auth/presentation/auth_injection.dart';
 import 'package:mediecom/features/auth/presentation/pages/phone_number.dart';
 
+import '../../../../injection_container.dart';
+
 class OnboardingPage extends StatelessWidget {
   static const path = '/onboarding-page';
   const OnboardingPage({super.key});

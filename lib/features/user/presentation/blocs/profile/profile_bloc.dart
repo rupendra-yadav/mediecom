@@ -10,6 +10,7 @@ import 'package:mediecom/features/user/domain/entities/user_entity.dart';
 import 'package:mediecom/features/user/domain/use_cases/fetch_user_details_usecase.dart';
 import 'package:mediecom/features/user/domain/use_cases/update_photo_usecase.dart';
 import 'package:mediecom/features/user/domain/use_cases/update_user_details_usecase.dart';
+import 'package:mediecom/features/user/domain/use_cases/upload_prescription_usecase.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';
@@ -18,13 +19,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final FetchUserDetailsUsecase _fetchUserDetailsUsecase;
   final UpdateUserDetailsUsecase updateUserDetailsUsecase;
   final UploadPhotoUseCase uploadPhotoUseCase;
+  final UploadPrescriptionUsecase uploadPrescriptionUsecase;
   ProfileBloc(
     this._fetchUserDetailsUsecase,
     this.updateUserDetailsUsecase,
     this.uploadPhotoUseCase,
+    this.uploadPrescriptionUsecase,
   ) : super(ProfileInitial()) {
     on<GetProfileEvent>(_onGetProfile);
     on<UpdateProfileEvent>(_onUpdateAccount);
+    on<UploadPrescriptionEvent>(_onUploadPrescription);
     // on<UpdateImageEvent>(_onUpdateImage);
   }
 
@@ -44,6 +48,27 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         ),
       ),
       (user) => emit(ProfileLoaded(user: user)),
+    );
+  }
+
+  Future<void> _onUploadPrescription(
+    UploadPrescriptionEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(ProfileLoading());
+    final failureOrSuccess = await uploadPrescriptionUsecase(
+      UploadPrescription(file: event.file),
+    );
+    log(failureOrSuccess.toString());
+
+    failureOrSuccess.fold(
+      (failure) => emit(
+        ProfileError(
+          message: mapFailureToMessage(failure),
+          statusCode: failure.statusCode,
+        ),
+      ),
+      (user) => emit(PrescriptionSuccess(prescriptionId: user)),
     );
   }
 

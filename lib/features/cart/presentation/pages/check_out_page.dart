@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
+import 'package:mediecom/core/utils/utils.dart';
 import 'package:mediecom/features/cart/presentation/pages/order_confirmation_page.dart';
+import 'package:mediecom/features/orders/presentation/bloc/orders_bloc.dart';
+import 'package:mediecom/features/orders/presentation/bloc/orders_event.dart';
+import 'package:mediecom/features/orders/presentation/bloc/orders_state.dart';
 
 class PaymentMethodPage extends StatefulWidget {
   static const path = '/payment-method';
-  const PaymentMethodPage({super.key});
+  final Map<String, dynamic>? payload;
+  const PaymentMethodPage({super.key, this.payload});
 
   @override
   State<PaymentMethodPage> createState() => _PaymentMethodPageState();
@@ -16,6 +22,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
   @override
   Widget build(BuildContext context) {
+    appLog("PaymentMethodPage Payload: ${widget.payload}");
     return Scaffold(
       backgroundColor: const Color(0xFFE0F4F6),
 
@@ -30,41 +37,130 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
         ),
       ),
 
-      bottomNavigationBar: _buildBottomButton(),
+      bottomNavigationBar: _buildBottomButton(
+        "₹${widget.payload?['totalAmount'].toString()}" ?? "₹0.00",
+      ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Choose a payment method", style: AppTextStyles.w600(16)),
+      body: BlocListener<OrdersBloc, OrdersState>(
+        listener: (context, state) {
+          if (state is OrderInsertSuccess) {
+            // Navigate to Order Confirmation Page
 
-            const SizedBox(height: 16),
+            context.pushReplacement(
+              OrderConfirmationPage.path,
+              extra: state.orderId,
+            );
+          } else if (state is OrdersFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Error placing order: ${state.message}")),
+            );
+          }
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Choose a payment method", style: AppTextStyles.w600(16)),
 
-            _paymentCard(
-              index: 0,
-              icon: Icons.credit_card_rounded,
-              title: "Online Payment",
-              subtitle: "Credit/Debit Card, UPI, Net Banking",
-            ),
+              const SizedBox(height: 16),
 
-            const SizedBox(height: 12),
+              _paymentCard(
+                index: 0,
+                icon: Icons.credit_card_rounded,
+                title: "Online Payment",
+                subtitle: "Credit/Debit Card, UPI, Net Banking",
+              ),
 
-            _paymentCard(
-              index: 1,
-              icon: Icons.wallet_rounded,
-              title: "Cash on Delivery",
-              subtitle: "Pay with cash upon delivery",
-            ),
+              const SizedBox(height: 12),
 
-            const SizedBox(height: 16),
+              _paymentCard(
+                index: 1,
+                icon: Icons.wallet_rounded,
+                title: "Cash on Delivery",
+                subtitle: "Pay with cash upon delivery",
+              ),
 
-            _securePaymentBadge(),
-            const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-            _priceDetails(),
-          ],
+              _securePaymentBadge(),
+              const SizedBox(height: 20),
+
+              _couponField(),
+              const SizedBox(height: 20),
+
+              _priceDetails(
+                "₹${widget.payload?['subtotal'].toString()}" ?? "₹0.00",
+                "₹${widget.payload?['deliveryFee'].toString()}" ?? "₹0.00",
+                widget.payload?['discount'] ?? "₹0.00",
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  // ------------------------- COUPEN CARD -------------------------
+
+  Widget _couponField() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: "Enter coupon code",
+                hintStyle: AppTextStyles.w500(
+                  14,
+                ).copyWith(color: Colors.grey.shade500),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.teal, width: 1.5),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () {
+              // TODO: Apply coupon logic
+            },
+            child: Text(
+              "Apply",
+              style: AppTextStyles.w600(14).copyWith(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -159,7 +255,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
   // ------------------------- PRICE DETAILS -------------------------
 
-  Widget _priceDetails() {
+  Widget _priceDetails(String subtotal, String deliveryFee, String discount) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -173,15 +269,15 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
           const SizedBox(height: 14),
 
-          _priceRow("Subtotal", "₹450.00"),
-          _priceRow("Delivery Fee", "₹50.00"),
-          _priceRow("Discount", "-₹25.00", valueColor: Colors.green),
+          _priceRow("Subtotal", subtotal),
+          _priceRow("Delivery Fee", deliveryFee),
+          _priceRow("Discount", discount, valueColor: Colors.green),
 
           const Divider(height: 28),
 
           _priceRow(
             "Total Amount",
-            "₹475.00",
+            "${widget.payload?['totalAmount'] != null ? "₹${widget.payload!['totalAmount']}" : "₹0.00"}",
             isBold: true,
             valueColor: Colors.black,
           ),
@@ -220,7 +316,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
 
   // ------------------------- BOTTOM BUTTON -------------------------
 
-  Widget _buildBottomButton() {
+  Widget _buildBottomButton(String totalAmount) {
     return Container(
       padding: const EdgeInsets.all(16),
       color: Colors.white,
@@ -234,9 +330,16 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          onPressed: () => context.push(OrderConfirmationPage.path),
+          onPressed: () => context.read<OrdersBloc>().add(
+            InsertOrderEvent(
+              orderData: {
+                'F4_PM': selectedMethod.toString(),
+                'payload': widget.payload!['cartPayload'],
+              },
+            ),
+          ),
           child: Text(
-            "Place Order (₹475.00)",
+            "Place Order ${totalAmount}",
             style: AppTextStyles.w600(16).copyWith(color: Colors.white),
           ),
         ),

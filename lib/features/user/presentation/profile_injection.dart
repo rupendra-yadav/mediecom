@@ -5,9 +5,9 @@ import 'package:mediecom/features/user/domain/repositories/user_repository.dart'
 import 'package:mediecom/features/user/domain/use_cases/fetch_user_details_usecase.dart';
 import 'package:mediecom/features/user/domain/use_cases/update_photo_usecase.dart';
 import 'package:mediecom/features/user/domain/use_cases/update_user_details_usecase.dart';
+import 'package:mediecom/features/user/domain/use_cases/upload_prescription_usecase.dart';
 import 'package:mediecom/features/user/presentation/blocs/profile/profile_bloc.dart';
-
-final sl = GetIt.instance;
+import 'package:mediecom/injection_container.dart';
 
 void initProfile() {
   /// Profile Use Cases Injection
@@ -23,9 +23,9 @@ void initProfile() {
     () => UploadPhotoUseCase(repository: sl.call()),
   );
 
-  // sl.registerLazySingleton<UpdateImageUseCase>(
-  //   () => UpdateImageUseCase(repository: sl.call()),
-  // );
+  sl.registerLazySingleton<UploadPrescriptionUsecase>(
+    () => UploadPrescriptionUsecase(repository: sl.call()),
+  );
 
   // sl.registerLazySingleton<NotificationUseCase>(
   //   () => NotificationUseCase(repository: sl.call()),
@@ -54,7 +54,7 @@ void initProfile() {
   );
 
   /// Auth  Bloc Injection
-  sl.registerFactory(() => ProfileBloc(sl(), sl(), sl()));
+  sl.registerFactory(() => ProfileBloc(sl(), sl(), sl(), sl()));
 
   // sl.registerFactory(() => NotificationsListBloc(notificationUseCase: sl()));
 

@@ -105,7 +105,11 @@ class _UploadPrescriptionPageState extends State<UploadPrescriptionPage> {
                         ),
                       )
                     : ElevatedButton(
-                        onPressed: () => context.push(ProcessRequestPage.path),
+                        // onPressed: () => context.push(ProcessRequestPage.path),
+                        onPressed: () => context.push(
+                          ProcessRequestPage.path,
+                          extra: _selectedImage,
+                        ),
                         style: OutlinedButton.styleFrom(
                           backgroundColor: Colours.primaryBackgroundColour,
                           side: const BorderSide(

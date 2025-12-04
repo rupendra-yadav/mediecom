@@ -13,7 +13,7 @@ abstract class OrderRemoteDataSource {
   Future<OrderDetailsModel> fetchOrderDetails(String orderId);
   Future<List<OrderHistoryModel>> fetchOrderHistory(String orderId);
   Future<void> updateOrderStatus(String orderId, String status);
-  Future<void> insertOrder(Map<String, dynamic> orderData);
+  Future<String> insertOrder(Map<String, dynamic> orderData);
 }
 
 class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
@@ -153,18 +153,37 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   }
 
   @override
-  Future<void> insertOrder(Map<String, dynamic> orderData) async {
+  Future<String> insertOrder(Map<String, dynamic> payload) async {
     try {
+      final String pm = payload['F4_PM'] ?? '';
+      final orderData = payload['payload'] as Map<String, dynamic>;
+
+      appLog(pm);
+
+      final Map<String, String> body = {
+        "user_id": "${orderData['user_id']}",
+        "F4_PARTY": "${orderData['F4_PARTY']}",
+        "F4_QTY": "${orderData['F4_QTY']}",
+        "grand_total": "${orderData['grand_total']}",
+        "F4_PM": "${pm}",
+      };
+
       final response = await client.post(
         Uri.parse(ApiConstants.insertOrder),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: orderData,
+        body: body,
       );
 
       _logApiCall('insertOrder', response);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = json.decode(response.body);
+
+        if (responseBody['response'] == 'success') {
+          final data = responseBody['data'];
+          final String orderId = data[0]['F4_NO'].toString();
+          return orderId;
+        }
         if (responseBody['response'] != 'success') {
           throw ServerException(
             message: responseBody['message'] ?? 'Failed to insert order',
@@ -182,6 +201,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
 
       throw ServerException(message: e.toString(), statusCode: 500);
     }
+    throw ServerException(message: "Error Inserting Order", statusCode: 500);
   }
 
   void _logApiCall(String method, http.Response response) {

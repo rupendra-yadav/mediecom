@@ -4,6 +4,7 @@ class ProductModel extends ProductEntity {
   ProductModel({
     super.M1_CODE,
     super.M1_NAME,
+    super.M1_LNAME,
     super.M1_LST,
     super.M1_CST,
     super.M1_IT,
@@ -28,6 +29,7 @@ class ProductModel extends ProductEntity {
     return ProductModel(
       M1_CODE: json['M1_CODE'],
       M1_NAME: json['M1_NAME'],
+      M1_LNAME: json['M1_LNAME'],
       M1_LST: json['M1_LST'],
       M1_CST: json['M1_CST'],
       M1_IT: json['M1_IT'],
@@ -46,5 +48,31 @@ class ProductModel extends ProductEntity {
       subcategory_name: json['subcategory_name'],
       image: json['image'] != null ? List<String>.from(json['image']) : [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'M1_CODE': M1_CODE,
+      'M1_NAME': M1_NAME,
+      'M1_LNAME': M1_LNAME,
+      'M1_LST': M1_LST,
+      'M1_CST': M1_CST,
+      'M1_IT': M1_IT,
+      'M1_VAL': M1_VAL,
+      'M1_AMT1': M1_AMT1,
+      'M1_AMT2': M1_AMT2,
+      'M1_DT3': M1_DT3,
+      'M1_DT4': M1_DT4,
+      'M1_BT': M1_BT,
+      'M1_ADD1': M1_ADD1,
+      'M1_ADD2': M1_ADD2,
+      'M1_DT1': M1_DT1,
+      'M1_GROUP': M1_GROUP,
+      'M1_PRINT': M1_PRINT,
+      'category_name': category_name,
+      'subcategory_name': subcategory_name,
+      'image': image,
+      'quantity': quantity,
+    };
   }
 }

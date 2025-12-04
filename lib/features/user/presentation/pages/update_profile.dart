@@ -16,6 +16,8 @@ import 'package:mediecom/features/explore/presentation/pages/home_screen.dart';
 import 'package:mediecom/features/user/data/models/user_model.dart';
 import 'package:mediecom/features/user/presentation/blocs/profile/profile_bloc.dart';
 
+import '../../../../injection_container.dart';
+
 class UpdateProfileScreen extends StatefulWidget {
   static const path = '/update-profile';
   const UpdateProfileScreen({super.key});

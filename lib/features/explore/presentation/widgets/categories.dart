@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:mediecom/core/constants/api_constants.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/features/master/domain/entities/category_entity.dart';
 import 'package:mediecom/features/master/presentation/pages/subcategory_page.dart';
@@ -60,16 +61,18 @@ class CategoryList extends StatelessWidget {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.only(right: 14),
+              padding: const EdgeInsets.only(right: 12),
               child: GestureDetector(
                 onTap: () => context.push(SubcategoryPage.path),
                 child: Container(
-                  width: 90,
-                  // height: 100,
-                  padding: const EdgeInsets.all(4),
+                  width: 95,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colours.white,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black12,
@@ -82,30 +85,34 @@ class CategoryList extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        // padding: const EdgeInsets.all(14),
-                        width: 60,
-                        height: 60,
+                        width: 66,
+                        height: 63,
                         decoration: BoxDecoration(
                           color: getRandomColor(),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
-                          categoryIcons[index % categoryIcons.length],
-                          color: Colors.black,
-                          size: 24,
+                        // child: Icon(
+                        //   categoryIcons[index % categoryIcons.length],
+                        //   color: Colors.black,
+                        //   size: 28,
+                        // ),
+                        child: Image.network(
+                          height: 20,
+                          '${ApiConstants.categoryBase}${category.m1dc1}',
+                          fit: BoxFit.contain,
                         ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 8),
                       Text(
                         category.m1Name,
                         textAlign: TextAlign.center,
-                        maxLines: 1,
-                        softWrap: true,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 10,
+                          fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
+                          height: 1.2,
                         ),
                       ),
                     ],

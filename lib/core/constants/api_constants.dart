@@ -9,6 +9,8 @@ abstract class ApiConstants {
       "https://www.subhlaxmimedical.com/myadmin/uploads/product/";
   static const profileBase =
       "https://www.subhlaxmimedical.com/myadmin/uploads/users/";
+  static const categoryBase =
+      "https://www.subhlaxmimedical.com/myadmin/uploads/category/";
 
   // ================================================================
   // AUTHENTICATION
@@ -16,6 +18,11 @@ abstract class ApiConstants {
   static const signUp = "$_baseUrl/signup_user";
   static const sendOtp = "$_baseUrl/send_otp";
   static const verifyOtp = "$_baseUrl/verify_otp";
+
+  // ================================================================
+  // PRESCRIPTION
+  // ================================================================
+  static const insertPrescription = "$_baseUrl/insert_prescription";
 
   // ================================================================
   // USER
@@ -51,6 +58,24 @@ abstract class ApiConstants {
   static const orderDetails = "$_baseUrl/order_details";
   static const orderHistoryList = "$_baseUrl/order_history_list";
   static const updateOrderStatus = "$_baseUrl/update_order_status";
+
+  // ================================================================
+  // SEARCH AND FEATURES
+  // ================================================================
+  static const search = "$_baseUrl/search";
+  static const features = "$_baseUrl/featured";
+
+  // ================================================================
+  // WEBVIEW LINKS
+  // ================================================================
+  static const privacyPolicy =
+      "https://www.subhlaxmimedical.com/App/privacypolicy";
+  static const termsConditions =
+      "https://www.subhlaxmimedical.com/App/termsconditions";
+  static const aboutUs = "https://www.subhlaxmimedical.com/App/aboutus";
+  static const refundPolicy =
+      "https://www.subhlaxmimedical.com/App/refundpolicy";
+  static const faq = "https://www.subhlaxmimedical.com/App";
 
   // ================================================================
   // MYSQL FALLBACK URLS (if used)

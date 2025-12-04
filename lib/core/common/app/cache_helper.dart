@@ -17,9 +17,9 @@ class CacheHelper {
   static const _userKey = 'user';
 
   //   //  / Reset session
-  //   Future<void> resetSession() async {
-  //     await _prefs.remove(_isLoggedInKey);
-  //   }
+  Future<void> resetSession() async {
+    await _prefs.remove(_isLoggedInKey);
+  }
 
   // Check if user is logged in
   bool isLoggedIn() => _prefs.getBool(_isLoggedInKey) ?? false;
@@ -77,7 +77,109 @@ class CacheHelper {
       return null;
     }
   }
-  // }
+
+  /* -----------------------------------------
+     LOCATION CACHE KEYS */
+
+  static const _latKey = 'user_lat';
+  static const _lngKey = 'user_lng';
+  static const _locationKey = 'user_location_details';
+  static const _fullAddressKey = 'full_address';
+
+  /* -----------------------------------------
+     CACHE LATITUDE & LONGITUDE
+  ----------------------------------------- */
+
+  Future<bool> cacheLatitude(double lat) async {
+    try {
+      return await _prefs.setDouble(_latKey, lat);
+    } catch (e) {
+      appLog("cacheLatitude error: $e");
+      return false;
+    }
+  }
+
+  Future<bool> cacheLongitude(double lng) async {
+    try {
+      return await _prefs.setDouble(_lngKey, lng);
+    } catch (e) {
+      appLog("cacheLongitude error: $e");
+      return false;
+    }
+  }
+
+  double? getLatitude() => _prefs.getDouble(_latKey);
+  double? getLongitude() => _prefs.getDouble(_lngKey);
+
+  /* -----------------------------------------
+     CACHE LOCATION DETAILS (CITY + DISTRICT)
+  ----------------------------------------- */
+
+  Future<bool> cacheLocationDetails({
+    required String city,
+    required String district,
+  }) async {
+    try {
+      final map = {"city": city, "district": district};
+
+      final jsonString = jsonEncode(map);
+      return await _prefs.setString(_locationKey, jsonString);
+    } catch (e) {
+      appLog("cacheLocationDetails error: $e");
+      return false;
+    }
+  }
+  /* ------------------------- FULL ADDRESS CACHE ------------------------- */
+
+  /// Cache full address
+  Future<bool> cacheFullAddress({required String address}) async {
+    try {
+      return await _prefs.setString(_fullAddressKey, address);
+    } catch (e) {
+      appLog("cacheFullAddress error: $e");
+      return false;
+    }
+  }
+
+  /// Get full cached address
+  String? getFullAddress() {
+    final address = _prefs.getString(_fullAddressKey);
+    if (address == null) {
+      appLog("No cached full address");
+      return null;
+    }
+    return address;
+  }
+
+  Map<String, String>? getLocationDetails() {
+    final jsonString = _prefs.getString(_locationKey);
+
+    if (jsonString == null) {
+      appLog("No cached location details");
+      return null;
+    }
+
+    try {
+      final map = jsonDecode(jsonString);
+      return {"city": map["city"], "district": map["district"]};
+    } catch (e) {
+      appLog("getLocationDetails decode error: $e");
+      return null;
+    }
+  }
+
+  /* -----------------------------------------
+     CLEAR LOCATION CACHE
+  ----------------------------------------- */
+
+  Future<void> clearLocation() async {
+    await _prefs.remove(_latKey);
+    await _prefs.remove(_lngKey);
+    await _prefs.remove(_locationKey);
+    await _prefs.remove(_fullAddressKey);
+  }
+}
+
 
   // // import 'dart:convert';
   // // import 'dart:developer';
@@ -283,4 +385,4 @@ class CacheHelper {
   // //         return Locale('en', 'US');
   // //     }
   // //   }
-}
+

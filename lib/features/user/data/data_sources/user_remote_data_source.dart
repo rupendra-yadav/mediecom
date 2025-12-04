@@ -1,15 +1,14 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/core/common/error/app_exceptions.dart';
 import 'package:mediecom/core/utils/utils.dart';
-import 'package:mediecom/features/auth/presentation/auth_injection.dart';
 
 import '../../../../core/constants/api_constants.dart';
 
+import '../../../../injection_container.dart';
 import '../../../user/data/models/user_model.dart';
 
 abstract class UserRemoteDataSource {
@@ -18,6 +17,7 @@ abstract class UserRemoteDataSource {
   Future<UserModel> updatePhoto(File photoPath);
   Future<void> updateFcm(String userId, String fcmToken);
   Future<List<Map<String, dynamic>>> getNotifications(String userId);
+  Future<String> uploadPrescription(File prescriptionImage);
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
@@ -242,6 +242,53 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
         message: 'Unexpected error occurred: ${e.toString()}',
         statusCode: 500,
       );
+    }
+  }
+
+  @override
+  Future<String> uploadPrescription(File prescriptionImage) async {
+    try {
+      final path = prescriptionImage.path;
+      final cacheHelper = sl<CacheHelper>();
+      final String userId = cacheHelper.getUserId() ?? "";
+
+      final request =
+          http.MultipartRequest(
+              'POST',
+              Uri.parse(ApiConstants.insertPrescription),
+            )
+            ..fields['user_id'] = userId
+            ..files.add(
+              await http.MultipartFile.fromPath('prescription', path),
+            );
+
+      final streamedResponse = await client.send(request);
+      final response = await http.Response.fromStream(streamedResponse);
+
+      _logApiCall('insertPrescription', response);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['response'] == 'success' &&
+            responseBody.containsKey('data')) {
+          return (responseBody['message']);
+        } else {
+          throw ServerException(
+            message: responseBody['message'] ?? 'Failed to update photo',
+            statusCode: response.statusCode,
+          );
+        }
+      } else {
+        throw ServerException(
+          message: 'Server error',
+          statusCode: response.statusCode,
+        );
+      }
+    } on http.ClientException {
+      throw NetworkException(message: 'No internet connection', statusCode: 0);
+    } catch (e) {
+      _handleError(e);
+      rethrow;
     }
   }
 }
