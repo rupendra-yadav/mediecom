@@ -35,8 +35,14 @@ class _FeaturedWidgetState extends State<FeaturedWidget> {
 
     final products = widget.feature.products ?? [];
 
+    print(
+      '🔵 Building FeaturedWidget for section: ${widget.feature.name} of type: ${widget.feature.lname} with ${products.length} products.',
+    );
+
+    print(widget.feature);
+
     // Check if it's a category section
-    if (widget.feature.lname == "ProductCategory") {
+    if (widget.feature.type == "ProductCategory") {
       return Container(
         color: sectionBgColor,
         child: Column(
@@ -72,7 +78,7 @@ class _FeaturedWidgetState extends State<FeaturedWidget> {
     }
 
     // Check if it's a product section
-    if (widget.feature.lname == "Product") {
+    if (widget.feature.type == "Product") {
       return Container(
         color: sectionBgColor,
         child: Column(
@@ -89,20 +95,20 @@ class _FeaturedWidgetState extends State<FeaturedWidget> {
                     style: AppTextStyles.w700(16).black,
                   ),
                   Spacer(),
-                  InkWell(
-                    onTap: () => context.push(SubcategoryPage.path),
-                    child: Row(
-                      children: [
-                        Text("See All", style: AppTextStyles.w600(14).primary),
-                        SizedBox(width: 4.w),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 14.sp,
-                          color: Colours.primaryColor,
-                        ),
-                      ],
-                    ),
-                  ),
+                  // InkWell(
+                  //   onTap: () => context.push(SubcategoryPage.path),
+                  //   child: Row(
+                  //     children: [
+                  //       Text("See All", style: AppTextStyles.w600(14).primary),
+                  //       SizedBox(width: 4.w),
+                  //       Icon(
+                  //         Icons.arrow_forward_ios,
+                  //         size: 14.sp,
+                  //         color: Colours.primaryColor,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -152,7 +158,7 @@ class _FeaturedWidgetState extends State<FeaturedWidget> {
               },
             ),
 
-            SizedBox(height: 100.h),
+            SizedBox(height: 10.h),
           ],
         ),
       );

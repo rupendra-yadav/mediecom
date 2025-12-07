@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mediecom/core/common/app/cache_helper.dart';
-import 'package:mediecom/core/common/singletons/cache.dart';
 import 'package:mediecom/core/common/widgets/safe_lottie_loader.dart';
 import 'package:mediecom/core/constants/media_constants.dart';
 import 'package:mediecom/core/extentions/text_style_extentions.dart';
@@ -33,9 +32,8 @@ import 'package:mediecom/features/explore/presentation/widgets/top_banners.dart'
 import 'package:mediecom/features/master/presentation/blocs/banner/banner_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/category/category_bloc.dart';
 import 'package:mediecom/features/notification/presentation/pages/notification.dart';
-import 'package:mediecom/features/user/data/models/user_model.dart';
+import 'package:mediecom/features/user/presentation/blocs/fcm/fcm_bloc.dart';
 import 'package:mediecom/injection_container.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   static const path = '/home-screen';
@@ -54,6 +52,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final token = sl<CacheHelper>().getFcmToken();
+      final user = sl<CacheHelper>().getUser();
+
+      if (user != null && token != null) {
+        context.read<FcmBloc>().add(
+          AddFcmEvent(fcm: token, userId: user.m2Id ?? ""),
+        );
+      }
+    });
+
     context.read<BannerBloc>().add(FetchBannerEvent());
     context.read<FeaturesBloc>().add(FetchFeaturesEvent());
     context.read<CategoryBloc>().add(FetchCategoryEvent());
@@ -489,6 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context, state) {
             if (state is FeaturesLoaded) {
               final data = state.featuresEntity;
+
               return ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),

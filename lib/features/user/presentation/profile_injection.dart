@@ -3,9 +3,11 @@ import 'package:mediecom/features/user/data/data_sources/user_remote_data_source
 import 'package:mediecom/features/user/data/repositories_impl/user_repo_impl.dart';
 import 'package:mediecom/features/user/domain/repositories/user_repository.dart';
 import 'package:mediecom/features/user/domain/use_cases/fetch_user_details_usecase.dart';
+import 'package:mediecom/features/user/domain/use_cases/update_fcm_usecase.dart';
 import 'package:mediecom/features/user/domain/use_cases/update_photo_usecase.dart';
 import 'package:mediecom/features/user/domain/use_cases/update_user_details_usecase.dart';
 import 'package:mediecom/features/user/domain/use_cases/upload_prescription_usecase.dart';
+import 'package:mediecom/features/user/presentation/blocs/fcm/fcm_bloc.dart';
 import 'package:mediecom/features/user/presentation/blocs/profile/profile_bloc.dart';
 import 'package:mediecom/injection_container.dart';
 
@@ -35,9 +37,9 @@ void initProfile() {
   //   () => ReadNotificationUseCase(repository: sl.call()),
   // );
 
-  // sl.registerLazySingleton<UpdateFcmUsecase>(
-  //   () => UpdateFcmUsecase(repository: sl.call()),
-  // );
+  sl.registerLazySingleton<UpdateFcmUsecase>(
+    () => UpdateFcmUsecase(repository: sl.call()),
+  );
 
   // sl.registerLazySingleton<RemoveFcmUsecase>(
   //   () => RemoveFcmUsecase(repository: sl.call()),
@@ -62,7 +64,5 @@ void initProfile() {
   //   () => ReadNotificationsBloc(readNotificationUseCase: sl()),
   // );
 
-  // sl.registerFactory(
-  //   () => FcmBloc(updateFcmUsecase: sl(), removeFcmUsecase: sl()),
-  // );
+  sl.registerFactory(() => FcmBloc(updateFcmUsecase: sl()));
 }

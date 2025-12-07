@@ -63,7 +63,7 @@ abstract class ApiConstants {
   // SEARCH AND FEATURES
   // ================================================================
   static const search = "$_baseUrl/search";
-  static const features = "$_baseUrl/featured";
+  static const features = "$_baseUrl/offer";
 
   // ================================================================
   // WEBVIEW LINKS

@@ -16,6 +16,23 @@ class CacheHelper {
   static const _userIdKey = 'user_id';
   static const _userKey = 'user';
 
+  static const _fcmTokenKey = 'fcm_token';
+
+  /// CACHE FCM TOKEN
+  Future<bool> cacheFcmToken(String token) async {
+    try {
+      return await _prefs.setString(_fcmTokenKey, token);
+    } catch (e) {
+      appLog("cacheFcmToken error: $e");
+      return false;
+    }
+  }
+
+  /// GET FCM TOKEN
+  String? getFcmToken() {
+    return _prefs.getString(_fcmTokenKey);
+  }
+
   //   //  / Reset session
   Future<void> resetSession() async {
     await _prefs.remove(_isLoggedInKey);

@@ -50,7 +50,7 @@ class Apihelpers {
 
       // 5️⃣ Log response
       appLog('📥 Status: ${response.statusCode}');
-      appLog('Response: ${response.body}');
+      // appLog('Response: ${response.body}');
 
       // 6️⃣ Handle response
       return _processResponse(response);

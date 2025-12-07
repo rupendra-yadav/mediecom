@@ -15,8 +15,10 @@ import 'package:mediecom/features/explore/presentation/bloc/search/search_bloc.d
 import 'package:mediecom/features/master/presentation/blocs/banner/banner_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/category/category_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/sub_category/sub_category_bloc.dart';
+import 'package:mediecom/features/notification/data/notifications.dart';
 import 'package:mediecom/features/notification/presentation/bloc/notification_bloc.dart';
 import 'package:mediecom/features/orders/presentation/bloc/orders_bloc.dart';
+import 'package:mediecom/features/user/presentation/blocs/fcm/fcm_bloc.dart';
 import 'package:mediecom/features/user/presentation/blocs/profile/profile_bloc.dart';
 
 import 'injection_container.dart';
@@ -62,6 +64,7 @@ class MyApp extends StatelessWidget {
 
           ///CART
           BlocProvider(create: (context) => sl<ProductBloc>()),
+          BlocProvider(create: (context) => sl<FcmBloc>()),
         ],
         child: SafeArea(
           bottom: true,

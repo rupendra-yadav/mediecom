@@ -1,168 +1,180 @@
-// import 'package:firebase_messaging/firebase_messaging.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:flutter/material.dart';
-// import 'package:mediecom/core/services/routes/app_router.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/material.dart';
+import 'package:mediecom/core/common/app/cache_helper.dart';
+import 'package:mediecom/core/services/routes/app_router.dart';
+import 'package:mediecom/injection_container.dart';
 
-// class NotificationService {
-//   // Singleton
-//   static final NotificationService _instance = NotificationService._internal();
-//   factory NotificationService() => _instance;
-//   NotificationService._internal();
+class NotificationService {
+  // Singleton
+  static final NotificationService _instance = NotificationService._internal();
+  factory NotificationService() => _instance;
+  NotificationService._internal();
 
-//   // Firebase
-//   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  // Firebase
+  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
-//   // Local Notifications
-//   final FlutterLocalNotificationsPlugin _localNotifications =
-//       FlutterLocalNotificationsPlugin();
+  // Local Notifications
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
-//   /// Must be called FIRST in main.dart
-//   Future<void> initialize() async {
-//     await _initializeFirebaseMessaging();
-//     await _initializeLocalNotifications();
-//     await _requestPermissions();
-//     await _getFCMToken();
-//     _listenForegroundMessages();
-//     _handleMessageTap();
-//   }
+  /// Must be called FIRST in main.dart
+  Future<void> initialize() async {
+    await _initializeFirebaseMessaging();
+    await _initializeLocalNotifications();
+    await _requestPermissions();
+    await _getFCMToken();
+    _listenForegroundMessages();
+    _handleMessageTap();
+  }
 
-//   // ---------------------------------------------------------------------------
-//   // BACKGROUND HANDLER (Required to be static)
-//   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // BACKGROUND HANDLER (Required to be static)
+  // ---------------------------------------------------------------------------
 
-//   static Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
-//     await Firebase.initializeApp();
-//     debugPrint("📩 Background message: ${message.messageId}");
-//   }
+  static Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
+    await Firebase.initializeApp();
+    debugPrint("📩 Background message: ${message.messageId}");
+  }
 
-//   // ---------------------------------------------------------------------------
-//   // INITIALIZE FCM
-//   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // INITIALIZE FCM
+  // ---------------------------------------------------------------------------
 
-//   Future<void> _initializeFirebaseMessaging() async {
-//     FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
-//   }
+  Future<void> _initializeFirebaseMessaging() async {
+    FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
+  }
 
-//   // ---------------------------------------------------------------------------
-//   // PERMISSION REQUEST (iOS + Android 13+)
-//   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // PERMISSION REQUEST (iOS + Android 13+)
+  // ---------------------------------------------------------------------------
 
-//   Future<void> _requestPermissions() async {
-//     NotificationSettings settings = await _messaging.requestPermission(
-//       alert: true,
-//       badge: true,
-//       sound: true,
-//     );
+  Future<void> _requestPermissions() async {
+    NotificationSettings settings = await _messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
 
-//     debugPrint("🔔 Notification permissions: ${settings.authorizationStatus}");
-//   }
+    debugPrint("🔔 Notification permissions: ${settings.authorizationStatus}");
+  }
 
-//   // ---------------------------------------------------------------------------
-//   // FETCH TOKEN
-//   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // FETCH TOKEN
+  // ---------------------------------------------------------------------------
 
-//   Future<String?> _getFCMToken() async {
-//     String? token = await _messaging.getToken();
-//     debugPrint("📲 FCM Token: $token");
+  Future<String?> _getFCMToken() async {
+    String? token = await _messaging.getToken();
+    debugPrint("📲 FCM Token: $token");
 
-//     // Save token to backend if needed
+    if (token != null) {
+      final cache = sl<CacheHelper>();
+      await cache.cacheFcmToken(token);
+    }
 
-//     return token;
-//   }
+    // Listen for token refresh
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      debugPrint("♻️ FCM Token Refreshed: $newToken");
+      final cache = sl<CacheHelper>();
+      await cache.cacheFcmToken(newToken);
+    });
 
-//   // ---------------------------------------------------------------------------
-//   // LOCAL NOTIFICATION INITIALIZATION
-//   // ---------------------------------------------------------------------------
+    return token;
+  }
 
-//   Future<void> _initializeLocalNotifications() async {
-//     const AndroidInitializationSettings androidInit =
-//         AndroidInitializationSettings('@mipmap/ic_launcher');
+  // ---------------------------------------------------------------------------
+  // LOCAL NOTIFICATION INITIALIZATION
+  // ---------------------------------------------------------------------------
 
-//     const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
+  Future<void> _initializeLocalNotifications() async {
+    const AndroidInitializationSettings androidInit =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
-//     const InitializationSettings initSettings = InitializationSettings(
-//       android: androidInit,
-//       iOS: iosInit,
-//     );
+    const DarwinInitializationSettings iosInit = DarwinInitializationSettings();
 
-//     await _localNotifications.initialize(
-//       initSettings,
-//       onDidReceiveNotificationResponse: (response) {
-//         debugPrint("🔔 Local notification tapped");
-//       },
-//     );
-//   }
+    const InitializationSettings initSettings = InitializationSettings(
+      android: androidInit,
+      iOS: iosInit,
+    );
 
-//   // ---------------------------------------------------------------------------
-//   // SHOW LOCAL NOTIFICATION (Foreground FCM)
-//   // ---------------------------------------------------------------------------
+    await _localNotifications.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: (response) {
+        debugPrint("🔔 Local notification tapped");
+      },
+    );
+  }
 
-//   Future<void> _showLocalNotification(RemoteNotification notification) async {
-//     const AndroidNotificationDetails androidDetails =
-//         AndroidNotificationDetails(
-//           'default_channel',
-//           'General Notifications',
-//           importance: Importance.max,
-//           priority: Priority.high,
-//         );
+  // ---------------------------------------------------------------------------
+  // SHOW LOCAL NOTIFICATION (Foreground FCM)
+  // ---------------------------------------------------------------------------
 
-//     const NotificationDetails platformDetails = NotificationDetails(
-//       android: androidDetails,
-//     );
+  Future<void> _showLocalNotification(RemoteNotification notification) async {
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'default_channel',
+          'General Notifications',
+          importance: Importance.max,
+          priority: Priority.high,
+        );
 
-//     await _localNotifications.show(
-//       notification.hashCode,
-//       notification.title,
-//       notification.body,
-//       platformDetails,
-//     );
-//   }
+    const NotificationDetails platformDetails = NotificationDetails(
+      android: androidDetails,
+    );
 
-//   // ---------------------------------------------------------------------------
-//   // FOREGROUND MESSAGES
-//   // ---------------------------------------------------------------------------
+    await _localNotifications.show(
+      notification.hashCode,
+      notification.title,
+      notification.body,
+      platformDetails,
+    );
+  }
 
-//   void _listenForegroundMessages() {
-//     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-//       debugPrint("📩 Foreground message received");
+  // ---------------------------------------------------------------------------
+  // FOREGROUND MESSAGES
+  // ---------------------------------------------------------------------------
 
-//       final notification = message.notification;
+  void _listenForegroundMessages() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      debugPrint("📩 Foreground message received");
 
-//       if (notification != null) {
-//         _showLocalNotification(notification);
-//       }
-//     });
-//   }
+      final notification = message.notification;
 
-//   // ---------------------------------------------------------------------------
-//   // NOTIFICATION TAPPED (Background / Terminated)
-//   // ---------------------------------------------------------------------------
+      if (notification != null) {
+        _showLocalNotification(notification);
+      }
+    });
+  }
 
-//   void _handleMessageTap() {
-//     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-//       debugPrint("🚀 Notification clicked while app in background");
+  // ---------------------------------------------------------------------------
+  // NOTIFICATION TAPPED (Background / Terminated)
+  // ---------------------------------------------------------------------------
 
-//       // 👇 Navigate based on custom data sent from backend
-//       final route = message.data["route"];
+  void _handleMessageTap() {
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      debugPrint("🚀 Notification clicked while app in background");
 
-//       if (route != null && rootNavigatorKey.currentState != null) {
-//         rootNavigatorKey.currentState!.pushNamed(route);
-//       }
-//     });
-//   }
+      // 👇 Navigate based on custom data sent from backend
+      final route = message.data["route"];
 
-//   // ---------------------------------------------------------------------------
-//   // OPTIONAL: TOPIC SUBSCRIBE
-//   // ---------------------------------------------------------------------------
+      if (route != null && rootNavigatorKey.currentState != null) {
+        rootNavigatorKey.currentState!.pushNamed(route);
+      }
+    });
+  }
 
-//   Future<void> subscribeToTopic(String topic) async {
-//     await _messaging.subscribeToTopic(topic);
-//     debugPrint("📌 Subscribed to topic: $topic");
-//   }
+  // ---------------------------------------------------------------------------
+  // OPTIONAL: TOPIC SUBSCRIBE
+  // ---------------------------------------------------------------------------
 
-//   Future<void> unsubscribeFromTopic(String topic) async {
-//     await _messaging.unsubscribeFromTopic(topic);
-//     debugPrint("❌ Unsubscribed from topic: $topic");
-//   }
-// }
+  Future<void> subscribeToTopic(String topic) async {
+    await _messaging.subscribeToTopic(topic);
+    debugPrint("📌 Subscribed to topic: $topic");
+  }
+
+  Future<void> unsubscribeFromTopic(String topic) async {
+    await _messaging.unsubscribeFromTopic(topic);
+    debugPrint("❌ Unsubscribed from topic: $topic");
+  }
+}

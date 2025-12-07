@@ -8,8 +8,7 @@ import 'package:mediecom/features/master/domain/use_cases/get_subcategory_usecas
 import 'package:mediecom/features/master/presentation/blocs/banner/banner_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/category/category_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/sub_category/sub_category_bloc.dart';
-
-final sl = GetIt.instance;
+import 'package:mediecom/injection_container.dart';
 
 void initMaster() {
   /// Master Use Cases Injection

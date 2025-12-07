@@ -5,6 +5,7 @@ import 'package:mediecom/features/master/domain/entities/category_entity.dart';
 class FeaturesEntity extends Equatable {
   final String name;
   final String lname;
+  final String type;
 
   final List<CategoryEntity>? categories;
   final List<ProductEntity>? products;
@@ -12,6 +13,7 @@ class FeaturesEntity extends Equatable {
   const FeaturesEntity({
     required this.name,
     required this.lname,
+    required this.type,
     this.categories,
     this.products,
   });
