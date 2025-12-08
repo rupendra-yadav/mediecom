@@ -183,80 +183,6 @@ class _OrdersState extends State<Orders> {
     };
   }
 
-  Widget _buildTimelineTile({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    bool isFirst = false,
-    bool isLast = false,
-    bool isActive = false,
-    Color color = Colors.grey,
-  }) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Column(
-            children: [
-              if (!isFirst)
-                Expanded(
-                  child: Container(
-                    width: 2.0,
-                    color: isActive ? color : Colors.grey[300],
-                  ),
-                ),
-              Container(
-                padding: const EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  color: isActive ? color : Colors.grey[300],
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: Colors.white, size: 18),
-              ),
-              if (!isLast)
-                Expanded(
-                  child: Container(
-                    width: 2.0,
-                    color: isActive ? color : Colors.grey[300],
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: isFirst ? 0 : 8.0,
-                bottom: isLast ? 0 : 8.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: isActive ? Colors.black : Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isActive ? Colors.grey[700] : Colors.grey[500],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildOrderId(OrderEntity order) {
     return GestureDetector(
       onTap: () => context.push(OrderTrackingPage.path, extra: order),
@@ -297,7 +223,6 @@ class _OrdersState extends State<Orders> {
                           ),
                           child: Text(
                             getPaymentMethod(order.f4Pm ?? ''),
-                            // ' ${order.f4Pm}',
                             textAlign: TextAlign.right,
                             style: TextStyle(
                               color: getPaymentMethodColor(order.f4Pm ?? ''),
@@ -319,7 +244,6 @@ class _OrdersState extends State<Orders> {
                   ),
                   SizedBox(height: 10.h),
                   Row(
-                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
@@ -330,16 +254,6 @@ class _OrdersState extends State<Orders> {
                         decoration: BoxDecoration(
                           color: getStatusColor(order.f4Bt ?? '').o10,
                           borderRadius: BorderRadius.circular(12),
-                          // boxShadow: [
-                          //   BoxShadow(
-                          //     color: Colors.grey.withOpacity(
-                          //       0.1,
-                          //     ), // Subtle shadow for light theme
-                          //     spreadRadius: 1,
-                          //     blurRadius: 5,
-                          //     offset: const Offset(0, 3),
-                          //   ),
-                          // ],
                         ),
                         child: Text(
                           getOrderStatus(order.f4Bt ?? ''),
@@ -365,7 +279,6 @@ class _OrdersState extends State<Orders> {
                           ),
                           child: Text(
                             getPaidStatus(order.f4Ps ?? ''),
-                            // ' ${order.f4Ps}',
                             textAlign: TextAlign.right,
                             style: TextStyle(
                               color: getPaidStatusColor(order.f4Ps ?? ''),
@@ -377,46 +290,43 @@ class _OrdersState extends State<Orders> {
                     ],
                   ),
 
-                  // Row(
-                  //   crossAxisAlignment: CrossAxisAlignment.start,
-                  //   children: [
-                  //     Container(
-                  //       width: 80,
-                  //       height: 80,
-                  //       decoration: BoxDecoration(
-                  //         borderRadius: BorderRadius.circular(8),
-                  //         image: const DecorationImage(
-                  //           image: AssetImage(
-                  //             'assets/kiwi_fruit.png',
-                  //           ), // Replace with your image asset
-                  //           fit: BoxFit.cover,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //     const SizedBox(width: 16),
-                  //     Expanded(
-                  //       child: Column(
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-                  //         children: [
-                  //           const Text(
-                  //             'Kiwi Fruit',
-                  //             style: TextStyle(
-                  //               fontWeight: FontWeight.bold,
-                  //               fontSize: 16,
-                  //             ),
-                  //           ),
-                  //           const SizedBox(height: 4),
-                  //           Text(
-                  //             'Rs.180',
-                  //             style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                  //           ),
-                  //           const SizedBox(height: 8),
-                  //           _buildStarRating(4), // Example rating
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
+                  // Total Amount Section
+                  SizedBox(height: 12.h),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.teal.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.teal.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Grand Total',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        Text(
+                          '₹${order.f4Amt2 ?? '0.00'}', // Replace with your actual field
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

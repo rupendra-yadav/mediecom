@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mediecom/core/common/app/application_details.dart';
 import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/core/common/widgets/safe_lottie_loader.dart';
 import 'package:mediecom/core/constants/media_constants.dart';
@@ -104,7 +105,8 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        final userMobile = "7000980233";
+        final cacheHelper = sl<CacheHelper>();
+        final appData = cacheHelper.getApplicationData();
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -137,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: const Text("Call Us"),
                 onTap: () {
                   // Launch dialer
-                  launchDialer(userMobile);
+                  launchDialer(appData!.contactNumber ?? "1234567890");
                 },
               ),
 
@@ -151,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: const Text("Chat on WhatsApp"),
                 onTap: () async {
                   openWhatsApp(
-                    "+91 $userMobile",
+                    "+91 ${appData!.contactNumber}",
                     "I have a query regarding...",
                   );
                 },
@@ -162,10 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 leading: const Icon(Icons.email, color: Colors.blue),
                 title: const Text("Email Us"),
                 onTap: () {
-                  launchEmail(
-                    "shubhlaxmi@gmail.com",
-                    "App%20Support%20Request",
-                  );
+                  launchEmail("${appData!.email}", "App%20Support%20Request");
                 },
               ),
             ],

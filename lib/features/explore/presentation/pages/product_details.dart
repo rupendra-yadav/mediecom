@@ -6,8 +6,10 @@ import 'package:mediecom/core/constants/api_constants.dart';
 import 'package:mediecom/core/extentions/color_extensions.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
+import 'package:mediecom/core/utils/utils.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_bloc.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_event.dart';
+import 'package:mediecom/features/cart/presentation/blocs/cart_state.dart';
 import 'dart:math' as math;
 
 import 'package:mediecom/features/explore/domain/entities/product_entity.dart';
@@ -83,47 +85,6 @@ class _ProductDetailPageState extends State<ProductDetailPage>
         isUserName: false,
         leading: true,
       ),
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   elevation: 0,
-      //   scrolledUnderElevation: 0,
-      //   title: const Text(
-      //     'Product Details',
-      //     style: TextStyle(
-      //       fontSize: 18,
-      //       fontWeight: FontWeight.w700,
-      //       color: Colors.black87,
-      //     ),
-      //   ),
-      //   leading: Container(
-      //     margin: const EdgeInsets.all(8),
-      //     decoration: BoxDecoration(
-      //       color: Colors.grey.shade100,
-      //       borderRadius: BorderRadius.circular(12),
-      //     ),
-      //     child: IconButton(
-      //       icon: const Icon(
-      //         Icons.arrow_back_ios_new,
-      //         color: Colors.black87,
-      //         size: 20,
-      //       ),
-      //       onPressed: () => Navigator.of(context).pop(),
-      //     ),
-      //   ),
-      //   actions: [
-      //     Container(
-      //       margin: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
-      //       decoration: BoxDecoration(
-      //         color: Colors.grey.shade100,
-      //         borderRadius: BorderRadius.circular(12),
-      //       ),
-      //       child: IconButton(
-      //         icon: const Icon(Iconsax.share, color: Colors.black87, size: 22),
-      //         onPressed: () {},
-      //       ),
-      //     ),
-      //   ],
-      // ),
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: SingleChildScrollView(
@@ -185,6 +146,26 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                           const SizedBox(width: 6),
                           Text(
                             subtitle,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Icon(
+                            Iconsax.card_pos,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            data.M1_LST ?? "Not specified",
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
@@ -319,15 +300,14 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                       const SizedBox(height: 12),
                       _buildEnhancedExpandableTile(
                         icon: Iconsax.health,
-                        title: 'Ingredients',
-                        content: data.M1_ADD2 ?? 'Not specified.',
+                        title: 'Category',
+                        content: data.M1_GROUP ?? 'Not specified.',
                       ),
                       const SizedBox(height: 12),
                       _buildEnhancedExpandableTile(
                         icon: Iconsax.clipboard_tick,
                         title: 'Usage Instructions',
-                        content:
-                            data.M1_ADD2 ?? 'Follow directions on the pack.',
+                        content: 'Follow directions on the pack.',
                       ),
                       const SizedBox(height: 12),
                       _buildEnhancedExpandableTile(
@@ -347,80 +327,182 @@ class _ProductDetailPageState extends State<ProductDetailPage>
         ),
       ),
 
-      // Enhanced bottom bar
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
+      // Enhanced bottom bar with quantity controls
+      bottomNavigationBar: BlocBuilder<CartBloc, CartState>(
+        builder: (context, cartState) {
+          final quantity = cartState.quantities[data.M1_CODE] ?? 0;
+
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              top: false,
+              child: _buildBottomCartButton(context, quantity),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBottomCartButton(BuildContext context, int quantity) {
+    if (quantity == 0) {
+      // Add to Cart Button
+      return ElevatedButton(
+        onPressed: () {
+          context.read<CartBloc>().add(AddToCart(item: widget.data));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Iconsax.tick_circle5, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Text(
+                    '${widget.data.M1_NAME} added to cart',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: primaryGreen,
+              duration: const Duration(seconds: 2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryGreen,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shadowColor: primaryGreen.withOpacity(0.4),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 18),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Iconsax.shopping_cart, size: 22),
+            const SizedBox(width: 10),
+            const Text(
+              'Add to Cart',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.3,
+              ),
             ),
           ],
         ),
-        child: SafeArea(
-          top: false,
-          child: Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    context.read<CartBloc>().add(AddToCart(item: widget.data));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Row(
-                          children: [
-                            Icon(Iconsax.tick_circle5, color: Colors.white),
-                            const SizedBox(width: 12),
-                            const Text(
-                              'Added to cart successfully',
-                              style: TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                          ],
-                        ),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: primaryGreen,
-                        duration: const Duration(seconds: 2),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryGreen,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shadowColor: primaryGreen.withOpacity(0.4),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+      );
+    } else {
+      // Quantity Controls
+      return Container(
+        height: 60,
+        decoration: BoxDecoration(
+          color: primaryGreen,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: primaryGreen.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Decrease Button
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  context.read<CartBloc>().add(
+                    UpdateQuantity(
+                      productCode: widget.data.M1_CODE ?? '',
+                      quantity: quantity - 1,
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Iconsax.shopping_cart, size: 22),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Add to Cart',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                    ],
+                  );
+                },
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  bottomLeft: Radius.circular(16),
+                ),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Iconsax.minus,
+                    color: Colors.white,
+                    size: 24,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+
+            // Quantity Display
+            Container(
+              width: 80,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.2)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '$quantity',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    'in cart',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withOpacity(0.8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Increase Button
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  context.read<CartBloc>().add(
+                    UpdateQuantity(
+                      productCode: widget.data.M1_CODE ?? '',
+                      quantity: quantity + 1,
+                    ),
+                  );
+                },
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(16),
+                  bottomRight: Radius.circular(16),
+                ),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: const Icon(Iconsax.add, color: Colors.white, size: 24),
+                ),
+              ),
+            ),
+          ],
         ),
-      ),
-    );
+      );
+    }
   }
 
   Widget _buildPrescriptionTag() {
@@ -612,8 +694,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                           ),
                         )
                       : Image.network(
-                          // ApiConstants.productBase + img,
-                          img,
+                          resolveUrl(img),
                           fit: BoxFit.cover,
                           width: double.infinity,
                           errorBuilder: (context, error, stackTrace) {

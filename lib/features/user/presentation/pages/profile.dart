@@ -11,6 +11,7 @@ import 'package:mediecom/features/orders/presentation/pages/orders.dart';
 import 'package:mediecom/features/user/data/models/user_model.dart';
 import 'package:mediecom/features/user/domain/entities/user_entity.dart';
 import 'package:mediecom/features/user/presentation/blocs/profile/profile_bloc.dart';
+import 'package:mediecom/features/user/presentation/pages/detailed_address.dart';
 import 'package:mediecom/features/user/presentation/pages/location_fetcher.dart';
 import 'package:mediecom/features/user/presentation/pages/update_profile.dart';
 import 'package:mediecom/features/user/presentation/widgets/profile_shimmer.dart';
@@ -45,73 +46,6 @@ class _ProfilePageState extends State<ProfilePage> {
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     context.read<ProfileBloc>().add(GetProfileEvent(userId: userId ?? ""));
     // });
-  }
-
-  Future<LocationResult?> getCachedLocation() async {
-    final prefs = await SharedPreferences.getInstance();
-    final lat = prefs.getDouble('lat');
-    final lng = prefs.getDouble('lng');
-    final city = prefs.getString('city');
-    final district = prefs.getString('district');
-    final fullAddress = prefs.getString('fullAddress');
-
-    if (lat != null &&
-        lng != null &&
-        city != null &&
-        district != null &&
-        fullAddress != null) {
-      return LocationResult(
-        lat: lat,
-        lng: lng,
-        city: city,
-        district: district,
-        fullAddress: fullAddress,
-      );
-    }
-    return null;
-  }
-
-  void _showLocationDialog(BuildContext context) async {
-    final location = await getCachedLocation();
-
-    if (location == null) {
-      // If no location saved
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: const Text('No Location Found'),
-          content: const Text('You have not saved any location yet.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
-
-    // Show the saved location
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => AlertDialog(
-        title: const Text('Delivery Address'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('City: ${location.city}'),
-            Text('District: ${location.district}'),
-            Text('Full Address: ${location.fullAddress}'),
-            Text('Latitude: ${location.lat}'),
-            Text('Longitude: ${location.lng}'),
-          ],
-        ),
-        actions: [TextButton(onPressed: () {}, child: const Text('Close'))],
-      ),
-    );
   }
 
   // Medium grey icon color
@@ -176,7 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
               context,
               title: 'Delivery Addresses',
               icon: Icons.location_on_outlined,
-              onTap: () => _showLocationDialog(context),
+              onTap: () => context.push(AddressesPage.path),
             ),
 
             const SizedBox(height: 22),

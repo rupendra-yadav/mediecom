@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
+import 'package:mediecom/core/utils/utils.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_bloc.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_event.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_state.dart';
@@ -73,7 +74,7 @@ class ProductCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                               child: CachedNetworkImage(
                                 imageUrl: data.image.isNotEmpty
-                                    ? data.image[0]
+                                    ? resolveUrl(data.image[0])
                                     : "",
                                 fit: BoxFit.contain,
                                 errorWidget: (context, url, error) => Center(

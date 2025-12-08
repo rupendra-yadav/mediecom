@@ -7,12 +7,15 @@ import 'package:mediecom/core/constants/api_constants.dart';
 import 'package:mediecom/core/services/routes/arguments/product_details.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
+import 'package:mediecom/core/utils/utils.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_bloc.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_event.dart';
 import 'package:mediecom/features/cart/presentation/blocs/cart_state.dart';
+import 'package:mediecom/features/cart/presentation/pages/cart.dart';
 import 'package:mediecom/features/explore/domain/entities/product_entity.dart';
 import 'package:mediecom/features/explore/presentation/bloc/product_bloc.dart';
 import 'package:mediecom/features/explore/presentation/pages/product_details.dart';
+import 'package:mediecom/features/explore/presentation/widgets/floating_button.dart';
 import 'package:mediecom/features/explore/presentation/widgets/gradient_appBar.dart';
 import 'package:mediecom/features/master/presentation/blocs/category/category_bloc.dart';
 import 'package:mediecom/features/master/presentation/blocs/sub_category/sub_category_bloc.dart';
@@ -38,6 +41,27 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
         isUserName: false,
         leading: true,
       ),
+
+      floatingActionButton: Container(
+        height: 70,
+        child: BlocBuilder<CartBloc, CartState>(
+          builder: (context, state) {
+            final items = state.items;
+
+            if (items.isEmpty) {
+              return SizedBox.shrink();
+            }
+            return FloatingCartButton(
+              itemCount: items.length,
+
+              onTap: () {
+                context.go(Cart.path);
+              },
+            );
+          },
+        ),
+      ),
+
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -93,9 +117,9 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
                   ),
                   child: Row(
                     children: [
-                      _sortFilterButton(Iconsax.sort, "Sort"),
+                      // _sortFilterButton(Iconsax.sort, "Sort"),
                       const SizedBox(width: 8),
-                      _sortFilterButton(Iconsax.filter, "Filters"),
+                      // _sortFilterButton(Iconsax.filter, "Filters"),
                     ],
                   ),
                 ),
@@ -323,7 +347,7 @@ class _SubcategoryPageState extends State<SubcategoryPage> {
                 clipBehavior: Clip.antiAlias,
                 child: data.image.isNotEmpty
                     ? Image.network(
-                        data.image[0],
+                        resolveUrl(data.image[0]),
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Icon(

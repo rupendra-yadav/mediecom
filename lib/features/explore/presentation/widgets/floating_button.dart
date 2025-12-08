@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mediecom/core/style/app_colors.dart';
 
 class FloatingCartButton extends StatefulWidget {
   final int itemCount;
@@ -38,7 +39,7 @@ class _FloatingCartButtonState extends State<FloatingCartButton> {
               duration: const Duration(milliseconds: 250),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.green.shade700,
+                color: Colours.primaryColor,
                 borderRadius: BorderRadius.circular(38),
                 boxShadow: [
                   BoxShadow(

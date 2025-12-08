@@ -156,16 +156,32 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
   Future<String> insertOrder(Map<String, dynamic> payload) async {
     try {
       final String pm = payload['F4_PM'] ?? '';
+      final String generatedOrderId = '${payload['order_id']}';
       final orderData = payload['payload'] as Map<String, dynamic>;
 
       appLog(pm);
 
       final Map<String, String> body = {
-        "user_id": "${orderData['user_id']}",
-        "F4_PARTY": "${orderData['F4_PARTY']}",
-        "F4_QTY": "${orderData['F4_QTY']}",
-        "grand_total": "${orderData['grand_total']}",
-        "F4_PM": "${pm}",
+        "F4_TYPE": "Order",
+        "F4_NO": generatedOrderId,
+        "F4_USERDT": DateTime.now().toIso8601String(),
+        "F4_PARTY1": "${orderData['user_id']}",
+        "F4_STOT": "${orderData['sub_total'] ?? orderData['subtotal'] ?? 0}",
+        "F4_FORM": "${payload['coupon_id'] ?? ''}",
+        "F4_PER": "${payload['tax'] ?? 0}",
+        "F4_TAMT": "${payload['tax_amt'] ?? 0}",
+        "F4_DIS": "${payload['discount'] ?? 0}",
+        "F4_DAMT": "${payload['discount_amt'] ?? 0}",
+        "F4_GTOT": "${payload['grand_total'] ?? orderData['grand_total'] ?? 0}",
+        "F4_AMT1": "0",
+        "F4_AMT2": "${payload['grand_total'] ?? orderData['grand_total'] ?? 0}",
+        "F4_AMT3": "${payload['delivery_charge'] ?? 0}",
+        "F4_BT": "${payload['F4_BT'] ?? 1}",
+        "F4_PM": "$pm", // Cash / Online
+        "F4_PS": pm == "Online" ? "1" : "0",
+        "F4_PARTY": orderData['F4_PARTY']
+            .toString(), // product IDs comma separated
+        "F4_QTY": orderData['F4_QTY'].toString(), // quantities comma separated
       };
 
       final response = await client.post(

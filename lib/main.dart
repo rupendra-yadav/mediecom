@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mediecom/core/common/app/application_details.dart';
 import 'package:mediecom/features/cart/data/data_sources/cart_service.dart';
 import 'package:mediecom/features/notification/data/notifications.dart';
 import 'package:mediecom/firebase_options.dart';
@@ -17,6 +18,8 @@ Future<void> main() async {
 
   await CartService.init();
   await CartBackupService.init();
+
+  await ApplicationRepository().initialize();
 
   runApp(MyApp());
 }

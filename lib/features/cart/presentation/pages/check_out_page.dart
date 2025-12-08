@@ -7,6 +7,7 @@ import 'package:mediecom/features/cart/presentation/pages/order_confirmation_pag
 import 'package:mediecom/features/orders/presentation/bloc/orders_bloc.dart';
 import 'package:mediecom/features/orders/presentation/bloc/orders_event.dart';
 import 'package:mediecom/features/orders/presentation/bloc/orders_state.dart';
+import 'package:mediecom/features/payment_gateway.dart';
 
 class PaymentMethodPage extends StatefulWidget {
   static const path = '/payment-method';
@@ -19,6 +20,214 @@ class PaymentMethodPage extends StatefulWidget {
 
 class _PaymentMethodPageState extends State<PaymentMethodPage> {
   int selectedMethod = 0; // 0 = Online, 1 = COD
+  bool _isProcessingPayment = false;
+
+  void _handleOnlinePayment() {
+    setState(() => _isProcessingPayment = true);
+
+    showModalBottomSheet(
+      context: context,
+      isDismissible: true,
+      enableDrag: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag Handle
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Secure Payment Icon
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.teal.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.lock_rounded,
+                color: Colors.teal,
+                size: 40,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Title
+            Text(
+              "Complete Your Payment",
+              style: AppTextStyles.w700(
+                20,
+              ).copyWith(color: Colors.grey.shade900),
+            ),
+
+            const SizedBox(height: 8),
+
+            // Subtitle
+            Text(
+              "You're almost there! Complete the payment to confirm your order",
+              textAlign: TextAlign.center,
+              style: AppTextStyles.w500(
+                14,
+              ).copyWith(color: Colors.grey.shade600),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Amount Display Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: BoxDecoration(
+                color: Colors.teal.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.teal.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    "Total Amount",
+                    style: AppTextStyles.w500(
+                      13,
+                    ).copyWith(color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    "₹${widget.payload!['totalAmount']}",
+                    style: AppTextStyles.w700(
+                      28,
+                    ).copyWith(color: Colors.teal.shade700),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Payment Methods Icons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _paymentMethodIcon(Icons.credit_card),
+                const SizedBox(width: 16),
+                _paymentMethodIcon(Icons.account_balance),
+                const SizedBox(width: 16),
+                _paymentMethodIcon(Icons.phone_android),
+              ],
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              "UPI • Cards • Net Banking • Wallets",
+              style: AppTextStyles.w500(
+                12,
+              ).copyWith(color: Colors.grey.shade500),
+            ),
+
+            const SizedBox(height: 28),
+
+            // Custom Pay Now Button (matching theme)
+            _buildCustomPayButton(
+              onPressed: () async {
+                // Get the button's build method to trigger payment
+                // This will call createOrder() and openCheckout()
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // Secure Payment Badge
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.verified_user,
+                  size: 16,
+                  color: Colors.grey.shade600,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  "Safe & Secure Payment",
+                  style: AppTextStyles.w500(
+                    12,
+                  ).copyWith(color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    ).whenComplete(() {
+      if (mounted) {
+        setState(() => _isProcessingPayment = false);
+      }
+    });
+  }
+
+  // Payment Method Icon Widget
+  Widget _paymentMethodIcon(IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Icon(icon, size: 24, color: Colors.grey.shade700),
+    );
+  }
+
+  // Custom Pay Button matching the theme
+  Widget _buildCustomPayButton({required VoidCallback onPressed}) {
+    return Builder(
+      builder: (context) {
+        return RazorpayPaymentWidget(
+          amount: (widget.payload!['totalAmount'] as num).toInt(),
+          onSuccess: (orderId) {
+            Navigator.pop(context);
+            context.read<OrdersBloc>().add(
+              InsertOrderEvent(
+                orderData: {
+                  'F4_PM': "Online",
+                  'order_id': orderId,
+                  'payload': widget.payload!['cartPayload'],
+                },
+              ),
+            );
+          },
+          onFailure: () {
+            Navigator.pop(context);
+            setState(() => _isProcessingPayment = false);
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text("Payment failed!")));
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +253,16 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       body: BlocListener<OrdersBloc, OrdersState>(
         listener: (context, state) {
           if (state is OrderInsertSuccess) {
-            // Navigate to Order Confirmation Page
+            setState(() => _isProcessingPayment = false);
 
+            // Navigate to Order Confirmation Page
             context.pushReplacement(
               OrderConfirmationPage.path,
               extra: state.orderId,
             );
           } else if (state is OrdersFailure) {
+            setState(() => _isProcessingPayment = false);
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text("Error placing order: ${state.message}")),
             );
@@ -330,18 +542,38 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          onPressed: () => context.read<OrdersBloc>().add(
-            InsertOrderEvent(
-              orderData: {
-                'F4_PM': selectedMethod.toString(),
-                'payload': widget.payload!['cartPayload'],
-              },
-            ),
-          ),
-          child: Text(
-            "Place Order ${totalAmount}",
-            style: AppTextStyles.w600(16).copyWith(color: Colors.white),
-          ),
+          onPressed: _isProcessingPayment
+              ? null
+              : () {
+                  if (selectedMethod == 0) {
+                    // Online Payment - Show bottom sheet with payment button
+                    _handleOnlinePayment();
+                  } else {
+                    // COD → directly place order with loading state
+                    setState(() => _isProcessingPayment = true);
+                    context.read<OrdersBloc>().add(
+                      InsertOrderEvent(
+                        orderData: {
+                          'F4_PM': "Cash",
+                          'payload': widget.payload!['cartPayload'],
+                        },
+                      ),
+                    );
+                  }
+                },
+          child: _isProcessingPayment
+              ? const SizedBox(
+                  height: 24,
+                  width: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Text(
+                  "Place Order $totalAmount",
+                  style: AppTextStyles.w600(16).copyWith(color: Colors.white),
+                ),
         ),
       ),
     );

@@ -95,6 +95,20 @@ void appLog(String msg) {
   }
 }
 
+String resolveUrl(
+  String path, {
+  String baseUrl = "https://www.subhlaxmimedical.com/myadmin/uploads/product/",
+}) {
+  if (path.contains("http")) {
+    return path; // already a full URL
+  } else {
+    // remove leading slash if present to avoid double slash
+    // final cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    appLog("concatedImageUrl$baseUrl$path");
+    return "$baseUrl$path";
+  }
+}
+
 Future<XFile?> showImagePickerSheet(BuildContext context, String title) async {
   final ImagePicker picker = ImagePicker();
 

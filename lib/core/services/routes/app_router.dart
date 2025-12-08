@@ -20,6 +20,7 @@ import 'package:mediecom/features/notification/presentation/pages/notification.d
 import 'package:mediecom/features/orders/domain/entities/order_entity.dart';
 import 'package:mediecom/features/orders/presentation/pages/orders.dart';
 import 'package:mediecom/features/orders/presentation/pages/orders_detail.dart';
+import 'package:mediecom/features/user/presentation/pages/detailed_address.dart';
 import 'package:mediecom/features/user/presentation/pages/location_fetcher.dart';
 import 'package:mediecom/features/user/presentation/pages/profile.dart';
 import 'package:mediecom/features/user/presentation/pages/update_profile.dart';
@@ -148,6 +149,12 @@ final GoRouter router = GoRouter(
       path: SubcategoryPage.path,
       pageBuilder: (context, state) =>
           buildTransitionPage(const SubcategoryPage(), slideInFromRight),
+    ),
+
+    GoRoute(
+      path: AddressesPage.path,
+      pageBuilder: (context, state) =>
+          buildTransitionPage(const AddressesPage(), slideInFromRight),
     ),
 
     GoRoute(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:mediecom/core/extentions/color_extensions.dart';
@@ -6,6 +7,9 @@ import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/utils/utils.dart';
 import 'package:mediecom/features/explore/presentation/widgets/gradient_appBar.dart';
 import 'package:mediecom/features/orders/domain/entities/order_entity.dart';
+import 'package:mediecom/features/orders/presentation/bloc/orders_bloc.dart';
+
+import '../bloc/orders_event.dart';
 
 class OrderTrackingPage extends StatefulWidget {
   static const path = '/order-tracking';
@@ -17,6 +21,16 @@ class OrderTrackingPage extends StatefulWidget {
 }
 
 class _OrderTrackingPageState extends State<OrderTrackingPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // print(widget.order.f4Lcode);
+    // context.read<OrdersBloc>().add(
+    //   FetchOrderDetailsEvent(orderId: widget.order.f4Lcode ?? ''),
+    // );
+  }
+
   String _getMonthName(int month) {
     const months = [
       'Jan',
