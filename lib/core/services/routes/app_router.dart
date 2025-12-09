@@ -168,13 +168,17 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: ProcessRequestPage.path,
       pageBuilder: (context, state) {
-        final XFile prescriptionImage = state.extra as XFile;
+        final prescriptionImage = state.extra is List<XFile>
+            ? state.extra as List<XFile>
+            : null;
+
         return buildTransitionPage(
-          ProcessRequestPage(prescriptionImage: prescriptionImage),
+          ProcessRequestPage(prescriptionImages: prescriptionImage),
           slideInFromRight,
         );
       },
     ),
+
     GoRoute(
       path: LocationPage.path,
       pageBuilder: (context, state) =>

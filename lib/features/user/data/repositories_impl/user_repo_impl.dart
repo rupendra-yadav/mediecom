@@ -119,9 +119,9 @@ class UserRepoImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, String>> uploadPrescription(File photoPath) async {
+  Future<Either<Failure, String>> uploadPrescription(List<File> images) async {
     try {
-      final message = await remoteDataSource.uploadPrescription(photoPath);
+      final message = await remoteDataSource.uploadPrescription(images);
       return Right(message);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message, statusCode: e.statusCode));

@@ -13,7 +13,7 @@ abstract class UserRepository {
 
   Future<Either<Failure, UserEntity>> updatePhoto(File photoPath);
 
-  Future<Either<Failure, String>> uploadPrescription(File photoPath);
+  Future<Either<Failure, String>> uploadPrescription(List<File> images);
 
   Future<Either<Failure, void>> updateFcm(String userId, String fcmToken);
 

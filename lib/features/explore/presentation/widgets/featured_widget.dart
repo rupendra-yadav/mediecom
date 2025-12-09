@@ -31,7 +31,7 @@ class _FeaturedWidgetState extends State<FeaturedWidget> {
   @override
   Widget build(BuildContext context) {
     final Color sectionBgColor = _getBackgroundColorForType(
-      widget.feature.lname,
+      widget.feature.type,
     );
 
     final products = widget.feature.products ?? [];

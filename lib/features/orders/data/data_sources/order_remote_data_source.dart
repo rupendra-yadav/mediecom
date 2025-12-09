@@ -61,7 +61,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       final response = await client.post(
         Uri.parse(ApiConstants.orderDetails),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {'order_id': orderId},
+        body: {'F4_NO': orderId},
       );
 
       _logApiCall('fetchOrderDetails', response);
@@ -94,7 +94,7 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       final response = await client.post(
         Uri.parse(ApiConstants.orderHistoryList),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {'order_id': orderId},
+        body: {'F4_LCODE': orderId},
       );
 
       _logApiCall('fetchOrderHistory', response);
@@ -183,6 +183,8 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
             .toString(), // product IDs comma separated
         "F4_QTY": orderData['F4_QTY'].toString(), // quantities comma separated
       };
+
+      appLog(body.toString());
 
       final response = await client.post(
         Uri.parse(ApiConstants.insertOrder),

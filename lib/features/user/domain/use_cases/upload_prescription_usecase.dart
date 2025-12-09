@@ -17,7 +17,7 @@ class UploadPrescriptionUsecase implements UseCase<String, UploadPrescription> {
 }
 
 class UploadPrescription {
-  final File file;
+  final List<File> file;
 
   UploadPrescription({required this.file});
 }

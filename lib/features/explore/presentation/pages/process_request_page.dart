@@ -5,15 +5,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mediecom/core/common/app/cache_helper.dart';
 import 'package:mediecom/core/style/app_colors.dart';
 import 'package:mediecom/core/style/app_text_styles.dart';
 import 'package:mediecom/features/explore/presentation/widgets/confirmation_popup.dart';
 import 'package:mediecom/features/user/presentation/blocs/profile/profile_bloc.dart';
+import 'package:mediecom/injection_container.dart';
 
 class ProcessRequestPage extends StatefulWidget {
   static const path = '/process_request';
-  final XFile prescriptionImage;
-  const ProcessRequestPage({super.key, required this.prescriptionImage});
+
+  final List<XFile>? prescriptionImages;
+
+  const ProcessRequestPage({super.key, required this.prescriptionImages});
 
   @override
   State<ProcessRequestPage> createState() => _ProcessRequestPageState();
@@ -21,9 +25,22 @@ class ProcessRequestPage extends StatefulWidget {
 
 class _ProcessRequestPageState extends State<ProcessRequestPage> {
   int selectedOption = 0;
+  List<XFile> selectedImages = [];
+
+  bool isSubmitting = false; // 🔥 PREVENT MULTIPLE API CALLS
+
+  final cacheHelper = sl<CacheHelper>();
+
+  @override
+  void initState() {
+    super.initState();
+    selectedImages = List.from(widget.prescriptionImages ?? []);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final appData = cacheHelper.getFullAddress();
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -34,9 +51,12 @@ class _ProcessRequestPageState extends State<ProcessRequestPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
+
       body: BlocListener<ProfileBloc, ProfileState>(
         listener: (context, state) {
           if (state is PrescriptionSuccess) {
+            setState(() => isSubmitting = false);
+
             Navigator.of(context).push(
               PageRouteBuilder(
                 opaque: false,
@@ -45,7 +65,12 @@ class _ProcessRequestPageState extends State<ProcessRequestPage> {
               ),
             );
           }
+
+          if (state is ProfileError) {
+            setState(() => isSubmitting = false);
+          }
         },
+
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
@@ -54,11 +79,13 @@ class _ProcessRequestPageState extends State<ProcessRequestPage> {
               children: [
                 SizedBox(height: 22.h),
 
+                _imagePreviewSection(),
+                SizedBox(height: 22.h),
+
                 Text(
                   "How would you like us to process your request?",
                   style: AppTextStyles.w600(16),
                 ),
-
                 SizedBox(height: 12.h),
 
                 _optionTile(
@@ -92,16 +119,14 @@ class _ProcessRequestPageState extends State<ProcessRequestPage> {
                           14,
                         ).copyWith(color: Colors.black),
                         children: [
-                          const TextSpan(text: "We will take about "),
-
+                          const TextSpan(text: "We will Proccess "),
                           TextSpan(
-                            text: "4 minutes",
+                            text: "your request ",
                             style: AppTextStyles.w600(
                               14,
                             ).copyWith(color: Colors.green),
                           ),
-
-                          const TextSpan(text: " to \nprocess your request"),
+                          const TextSpan(text: "\n at the earliest."),
                         ],
                       ),
                     ),
@@ -109,7 +134,6 @@ class _ProcessRequestPageState extends State<ProcessRequestPage> {
                 ),
 
                 SizedBox(height: 40.h),
-                SizedBox(height: 22.h),
 
                 Text(
                   "Your assigned pharmacist will make the following selections:",
@@ -121,9 +145,7 @@ class _ProcessRequestPageState extends State<ProcessRequestPage> {
                 _tickItem("Apply best coupon"),
                 _tickItem("Choose earliest delivery date"),
 
-                SizedBox(height: 26.h),
-
-                SizedBox(height: 150.h),
+                SizedBox(height: 160.h),
               ],
             ),
           ),
@@ -133,56 +155,74 @@ class _ProcessRequestPageState extends State<ProcessRequestPage> {
       bottomSheet: Container(
         color: Colours.primaryBackgroundColour,
         padding: EdgeInsets.all(18),
-        height: 150.h,
+        height: 157.h,
         width: double.infinity,
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(Icons.location_on_outlined, size: 22.sp),
                   SizedBox(width: 8.w),
-                  Text("Delivering to", style: AppTextStyles.w500(15)),
-                  SizedBox(width: 6.w),
-                  Text(
-                    "Bhilai",
-                    style: AppTextStyles.w600(15).copyWith(color: Colors.black),
-                  ),
-                  const Spacer(),
-                  Text(
-                    "Add Address",
-                    style: AppTextStyles.w600(
-                      15,
-                    ).copyWith(color: Colours.primaryColor),
+
+                  Expanded(
+                    child: Text(
+                      "Delivering to: ${appData}" ?? "Your Address",
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                      style: AppTextStyles.w600(
+                        15,
+                      ).copyWith(color: Colors.black),
+                    ),
                   ),
                 ],
               ),
             ),
 
             Padding(
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.all(12),
               child: SizedBox(
                 height: 48.h,
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => context.read<ProfileBloc>().add(
-                    UploadPrescriptionEvent(
-                      file: File(widget.prescriptionImage.path),
-                    ),
-                  ),
+                  onPressed: selectedImages.isEmpty || isSubmitting
+                      ? null
+                      : () {
+                          setState(() => isSubmitting = true);
+
+                          context.read<ProfileBloc>().add(
+                            UploadPrescriptionEvent(
+                              file: selectedImages
+                                  .map((x) => File(x.path))
+                                  .toList(),
+                            ),
+                          );
+                        },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colours.primaryColor,
+                    disabledBackgroundColor: Colors.grey.shade400,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                   ),
-                  child: Text(
-                    "Continue",
-                    style: AppTextStyles.w600(
-                      16,
-                    ).copyWith(color: Colours.white),
-                  ),
+                  child: isSubmitting
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          "Continue",
+                          style: AppTextStyles.w600(
+                            16,
+                          ).copyWith(color: Colours.white),
+                        ),
                 ),
               ),
             ),
@@ -192,9 +232,88 @@ class _ProcessRequestPageState extends State<ProcessRequestPage> {
     );
   }
 
-  // -----------------------------------------------------------------
-  // WIDGETS
-  // -----------------------------------------------------------------
+  /// IMAGE PREVIEW SECTION
+  Widget _imagePreviewSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Uploaded Prescription(s)", style: AppTextStyles.w600(15)),
+        SizedBox(height: 12),
+
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            ...selectedImages.map(
+              (img) => Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.file(
+                      File(img.path),
+                      width: 100,
+                      height: 120,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() => selectedImages.remove(img));
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            if (selectedImages.length < 3)
+              GestureDetector(
+                onTap: _pickMoreImages,
+                child: Container(
+                  width: 100,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colours.primaryColor, width: 1.4),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.add,
+                      size: 32,
+                      color: Colours.primaryColor,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickMoreImages() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked != null) {
+      setState(() => selectedImages.add(picked));
+    }
+  }
 
   Widget _optionTile({
     required int index,

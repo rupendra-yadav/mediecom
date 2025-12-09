@@ -20,6 +20,9 @@ class ApplicationModel {
   final String? bankAccountNumber;
   final String? ifscCode;
   final String? city;
+  final String? c0Per31;
+  final String? c0Per32;
+  final String? c0Per33;
 
   ApplicationModel({
     required this.id,
@@ -36,6 +39,9 @@ class ApplicationModel {
     this.bankAccountNumber,
     this.ifscCode,
     this.city,
+    this.c0Per31,
+    this.c0Per32,
+    this.c0Per33,
   });
 
   factory ApplicationModel.fromJson(Map<String, dynamic> json) {
@@ -54,6 +60,9 @@ class ApplicationModel {
       bankAccountNumber: json['CO_PER7'],
       ifscCode: json['CO_PER8'],
       city: json['CO_PER9'],
+      c0Per31: json['CO_PER31'],
+      c0Per32: json['CO_PER32'],
+      c0Per33: json['CO_PER33'],
     );
   }
 
@@ -73,6 +82,9 @@ class ApplicationModel {
       'CO_PER7': bankAccountNumber,
       'CO_PER8': ifscCode,
       'CO_PER9': city,
+      'CO_PER31': c0Per31,
+      'CO_PER32': c0Per32,
+      'CO_PER33': c0Per33,
     };
   }
 }

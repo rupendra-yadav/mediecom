@@ -17,7 +17,7 @@ abstract class UserRemoteDataSource {
   Future<UserModel> updatePhoto(File photoPath);
   Future<void> updateFcm(String userId, String fcmToken);
   Future<List<Map<String, dynamic>>> getNotifications(String userId);
-  Future<String> uploadPrescription(File prescriptionImage);
+  Future<String> uploadPrescription(List<File> images);
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
@@ -245,22 +245,27 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     }
   }
 
-  @override
-  Future<String> uploadPrescription(File prescriptionImage) async {
+  Future<String> uploadPrescription(List<File> images) async {
     try {
-      final path = prescriptionImage.path;
       final cacheHelper = sl<CacheHelper>();
       final String userId = cacheHelper.getUserId() ?? "";
 
-      final request =
-          http.MultipartRequest(
-              'POST',
-              Uri.parse(ApiConstants.insertPrescription),
-            )
-            ..fields['user_id'] = userId
-            ..files.add(
-              await http.MultipartFile.fromPath('prescription', path),
-            );
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse(ApiConstants.insertPrescription),
+      );
+
+      request.fields['user_id'] = userId;
+
+      // Map incoming images to backend fields dynamically
+      final fieldNames = ['F4_TXT1', 'F4_TXT2', 'F4_TXT3'];
+
+      for (int i = 0; i < images.length && i < 3; i++) {
+        final file = images[i];
+        request.files.add(
+          await http.MultipartFile.fromPath(fieldNames[i], file.path),
+        );
+      }
 
       final streamedResponse = await client.send(request);
       final response = await http.Response.fromStream(streamedResponse);
@@ -269,12 +274,12 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = json.decode(response.body);
-        if (responseBody['response'] == 'success' &&
-            responseBody.containsKey('data')) {
-          return (responseBody['message']);
+
+        if (responseBody['response'] == 'success') {
+          return responseBody['message'];
         } else {
           throw ServerException(
-            message: responseBody['message'] ?? 'Failed to update photo',
+            message: responseBody['message'] ?? 'Failed to upload prescription',
             statusCode: response.statusCode,
           );
         }

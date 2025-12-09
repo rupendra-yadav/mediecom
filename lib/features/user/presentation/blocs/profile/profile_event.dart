@@ -27,7 +27,7 @@ class UpdateProfileEvent extends ProfileEvent {
 }
 
 class UploadPrescriptionEvent extends ProfileEvent {
-  final File file;
+  final List<File> file;
 
   const UploadPrescriptionEvent({required this.file});
 
